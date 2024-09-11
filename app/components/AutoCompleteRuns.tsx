@@ -54,7 +54,7 @@ export default function AutoCompleteRuns({ onRunSelect }: { onRunSelect: (run: a
     //if (isError) return <p>Error</p>
    
     return (
-        <div className="w-full flex-none">
+        <div>
 
 
             <Autocomplete
@@ -73,7 +73,7 @@ export default function AutoCompleteRuns({ onRunSelect }: { onRunSelect: (run: a
                     }
                 }}
 
-                sx={{ width: 1000 }}
+                sx={{ width: 750 }}
 
                 open={open}
                 onOpen={() => {

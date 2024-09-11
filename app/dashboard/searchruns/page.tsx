@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 import { SourceResultId } from '@/app/components/SourceResultIdList';
 import { TimeSeries } from '@/app/components/TimeSeriesChart';
 import Operators from '@/app/components/Operators'
+import Stack from '@mui/material/Stack';
 interface run {
     runid: number,
     runname: string
@@ -29,14 +30,14 @@ export default function Page() {
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [loadedTs, setLoadedTs] = useState<ts[]>([]);
     const [data, setData] = useState();
-   
+
 
     async function fetchData(tag: string) {
         const response = await fetch("/api/getTS?runid=" + selectedRun + "&sourceId=" + selectedSource + "&tags=" + tag);
         const dataresponse = await response.json();
         setData(dataresponse)
         console.log("response " + response)
-        
+
         console.log("data response from ts loading :" + dataresponse[0])
         setLoadedTs((prevLoadedTs) => [
             ...prevLoadedTs,
@@ -52,20 +53,20 @@ export default function Page() {
 
 
     useEffect(() => {
-        
+
         if (!Array.isArray(selectedTags)) {
             console.error("selectedTags is not an array, curious it was initialized");
             console.log(selectedTags)
             return;
-          }
-        
-          // Check if loadedTs is an array
-          if (!Array.isArray(loadedTs)) {
+        }
+
+        // Check if loadedTs is an array
+        if (!Array.isArray(loadedTs)) {
             console.error("loadedTs is not an array");
             return;
-          }
+        }
 
-        if (selectedRun && selectedTags && selectedTags.length>0 && selectedSource) {
+        if (selectedRun && selectedTags && selectedTags.length > 0 && selectedSource) {
             // Find tags that are in selectedTags but not in loadedTs
             const tagsToLoad = selectedTags.filter(
                 (tag) => !loadedTs.some((loadedItem) => loadedItem.tag === tag)
@@ -81,27 +82,28 @@ export default function Page() {
                 fetchData(tag);
             });
         }
-    }, [selectedTags,  selectedRun, selectedSource]); // Dependency array
+    }, [selectedTags, selectedRun, selectedSource]); // Dependency array
 
 
 
     return (
         <div className="flex flex-col min-h-screen p-4">
+
+            
+
             {/* Top Component */}
-            <div >
+            <Stack direction="row" spacing={2}>
                 <AutoCompleteRuns onRunSelect={setSelectedRun} />
-            </div>
+                {selectedRun && <Operators run={selectedRun} selectedTags={selectedTags} onTagSelect={setSelectedTags} />}
+            </Stack>
 
             {/* Bottom Layout */}
             <div className="flex flex-1">
+
                 {/* Left Section */}
                 <div className="w-1/4  p-4">
                     <div className="flex">
                         {selectedRun && <SourceResultId onSourceSelect={setSelectedSource} run={selectedRun} />}
-                    </div>
-                    <div className="flex h-1/2">
-                        {selectedRun && <Operators run={selectedRun} selectedTags={selectedTags} onTagSelect={setSelectedTags} />}
-
                     </div>
                 </div>
 
@@ -110,7 +112,7 @@ export default function Page() {
                     {selectedSource
                         && Number(selectedSource) != 0
                         && selectedTags && selectedTags.length > 0
-                        && loadedTs && loadedTs.length>0
+                        && loadedTs && loadedTs.length > 0
                         && <TimeSeries runid={Number(selectedRun)} sourceId={Number(selectedSource)} tsArray={loadedTs} />}
                 </div>
             </div>
