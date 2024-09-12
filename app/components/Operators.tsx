@@ -18,31 +18,45 @@ interface run {
   runname: string
 }
 
+interface timeseriestag {
+  tag: string,
+  bandpass: string,
+  domain: string
+}
+
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function Operators({ run, selectedTags, onTagSelect }: { run: run; selectedTags: string[] | undefined; onTagSelect: (tags: string[]) => void; }) {
 
-  const [value, setValue] = React.useState<string[] | null>([]);
+  const [value, setValue] = React.useState<string[]>([]);
   const { data, error, isLoading } = useSWR("/api/getTimeSeriesResultTypes?runid=" + run, fetcher)
   if (!data) return <p>Loading</p>
-  const elementsWithId = data.map((element: any, index: number) => ({
-    ...element,
-    id: index
-  }));
+
+  const options: string[] = data.map((element: timeseriestag, index: number) => (element.tag));
+
   return (
 
 
     <Autocomplete
       value={value}
-      onChange={(event: any, newValue: string | null) => {
-        console.log(newValue[0].tag)
-        onTagSelect(setValue([...value,newValue.tag]))
+      onChange={(event: any, newValue: string[] ) => {
+        if (newValue) {
+          // Update the value state with the new selected values
+          setValue(newValue);
+
+          // Log the updated values
+          console.log("new selected tags in combo box:", newValue);
+          newValue.forEach((v) => console.log("values are now:", v));
+
+          // Call onTagSelect with the updated values
+          onTagSelect(newValue);
+        }
       }
       }
       sx={{ width: 750 }}
       multiple
-      options={elementsWithId}
-      //getOptionLabel={(option) => option.tag}
+      options={options}
+      // getOptionLabel={(option) => option}
       defaultValue={[]}
       renderInput={(params) => (
         <TextField

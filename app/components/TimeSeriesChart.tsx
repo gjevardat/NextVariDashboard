@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import * as Highcharts from 'highcharts';
 import { HighchartsReact } from 'highcharts-react-official';
 import useSWR from 'swr'
@@ -20,96 +20,99 @@ if (typeof Highcharts === 'object') {
 let options: Highcharts.Options = {};
 const fetcher = (url: any) => fetch(url).then((res) => res.json());
 
-interface ts {
-  tag: string,
-  sourceid: number,
-  obstimes: number[],
-  vals: number[],
-  errs: number[]
+interface Ts {
+  tag: string;
+  obstimes: number[];
+  vals: number[];
+  errs: number[];
 }
-export function TimeSeries({ runid, sourceId, tsArray }: { runid: number; sourceId: number; tsArray: ts[] | undefined }) {
 
-  console.log(tsArray)
+interface ChartProps {
+  tsArray: Ts[];
+  sourceId: number;
+}
 
+export function TimeSeries ({ tsArray, sourceId }: ChartProps)  {
   const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
 
-  options = {
+  useEffect(() => {
+    if (!chartComponentRef.current) return;
+    const chart = chartComponentRef.current.chart;
+
+    // Ensure the chart is properly initialized before adding series
+    if (chart && tsArray) {
+      tsArray.forEach((ts) => {
+
+        
+
+        const valueSeries: [number, number][] = ts.obstimes.map((value, index) => [value, ts.vals[index]]);
+        const errorSeries: [number, number, number][] = ts.obstimes.map((value, index) => [value, ts.vals[index] - ts.errs[index], ts.vals[index] + ts.errs[index]]);
+
+        chart.addSeries({
+          type: 'scatter',
+          id: ts.tag,
+          name: ts.tag,
+          data: valueSeries,
+          marker: {
+            radius: 4,
+          },
+          tooltip: {
+            followPointer: false,
+            pointFormat: '[{point.x:.4f}, {point.y:.4f}]',
+          },
+        }, false, false);
+
+        chart.addSeries({
+          id: ts.tag + "_err",
+          type: 'errorbar',
+          name: 'Error time series',
+          data: errorSeries,
+        }, true, false);
+      });
+
+      // Redraw the chart after adding series
+      chart.redraw();
+    }
+  }, [tsArray]);
+
+  const options = {
+    accessibility: {
+      enabled: false,
+    },
     chart: {
       type: 'scatter',
-      height: '60%', // Manually setting the chart height
+      height: '60%',
       zooming: {
-        type: 'xy'
+        type: 'xy',
       },
-      animation: false
-
+      animation: false,
     },
     xAxis: {
-      type: 'linear'
+      type: 'linear',
     },
-
     plotOptions: {
       series: {
-        animation: false
+        animation: false,
       },
       scatter: {
-        animation: false
-      }
+        animation: false,
+      },
     },
     title: {
-      text: String(sourceId)
+      text: String(sourceId),
     },
   };
 
-
-
-  tsArray && tsArray.forEach((ts) => {
-
-
-    if (chartComponentRef.current?.chart.get(ts.tag) == null) {
-
-      const valueSeries: [number, number][] = ts.obstimes.map((value, index) => [value, ts.vals[index]]);
-      const errorSeries: [number, number, number][] = ts.obstimes.map((value, index) => [value, ts.vals[index] - ts.errs[index], ts.vals[index] + ts.errs[index]]);
-
-      chartComponentRef.current?.chart.addSeries({
-        type: 'scatter',
-        id: ts.tag,
-        name: ts.tag,
-        data: valueSeries,
-
-        marker: {
-          radius: 2
-        },
-        tooltip: {
-          followPointer: false,
-          pointFormat: '[{point.x:.4f}, {point.y:.4f}]'
-        }
-      }, false, false);
-
-      chartComponentRef.current?.chart.addSeries({
-        id: ts.tag+"_err",
-        type: 'errorbar',
-        name: 'Error time series',
-        data: errorSeries,
-
-      }, false, false);
-    }
-  })
-
-  chartComponentRef.current?.chart.redraw();
-
-
   return (
-
     <HighchartsReact
       highcharts={Highcharts}
       options={options}
       ref={chartComponentRef}
-
     />
+  );
+};
 
 
-  )
-}
 
 
 

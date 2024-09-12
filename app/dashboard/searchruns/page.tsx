@@ -29,28 +29,30 @@ export default function Page() {
     const [selectedSource, setSelectedSource] = useState<number>();
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [loadedTs, setLoadedTs] = useState<ts[]>([]);
-    const [data, setData] = useState();
+    
 
 
-    async function fetchData(tag: string) {
-        const response = await fetch("/api/getTS?runid=" + selectedRun + "&sourceId=" + selectedSource + "&tags=" + tag);
+    async function fetchData(run: number, source: number, tag: string) {
+        const response = await fetch(`/api/getTS?runid=${run}&sourceId=${source}&tags=${tag}`);
         const dataresponse = await response.json();
-        setData(dataresponse)
-        console.log("response " + response)
-
-        console.log("data response from ts loading :" + dataresponse[0])
-        setLoadedTs((prevLoadedTs) => [
-            ...prevLoadedTs,
-            {
+      
+        console.log("response ", dataresponse);
+        if (Array.isArray(dataresponse) && dataresponse.length > 0) {
+            console.log("data response from ts loading: ", dataresponse[0].sourceid);
+          
+            // Directly update the loadedTs state with fetched data
+            setLoadedTs((prevLoadedTs) => [
+              ...prevLoadedTs,
+              {
                 tag: tag,
                 sourceid: dataresponse[0].sourceid,
                 obstimes: dataresponse[0].obstimes,
                 vals: dataresponse[0].val,
                 errs: dataresponse[0].valerr,
-            },
-        ]);
-    }
-
+              },
+            ]);
+        }
+      }
 
     useEffect(() => {
 
@@ -79,7 +81,7 @@ export default function Page() {
             // Fetch data for each tag that needs to be loaded
             tagsToLoad.forEach((tag) => {
                 console.log("Tag to fetch " + tag)
-                fetchData(tag);
+                fetchData(selectedRun,selectedSource,tag);
             });
         }
     }, [selectedTags, selectedRun, selectedSource]); // Dependency array
