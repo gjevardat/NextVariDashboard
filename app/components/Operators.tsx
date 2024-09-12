@@ -66,31 +66,5 @@ export default function Operators({ run, selectedTags, onTagSelect }: { run: run
         />
       )}
     />
-
-
-
-    // <List sx={{ width: '100%', height: '30%', bgcolor: 'background.paper', overflow: 'auto' }}>
-    //   {elementsWithId.map((value:any) => {
-    //     const labelId = `checkbox-list-label-${value.id}`;
-
-    //     return (
-    //       <ListItem key={value.id}>
-    //         <ListItemButton onClick={handleToggle(value)}>
-    //         <ListItemIcon>
-    //           <Checkbox
-    //             edge="start"
-    //             checked={checked.indexOf(value.id) !== -1}
-    //             tabIndex={-1}
-    //             disableRipple
-    //             inputProps={{ 'aria-labelledby': labelId }}
-    //             />
-    //         </ListItemIcon>
-    //         </ListItemButton>
-    //         <ListItemText id={value.id} primary={value.tag} />
-
-    //       </ListItem>
-    //     );
-    //   })}
-    // </List>
   );
 };

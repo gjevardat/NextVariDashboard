@@ -39,39 +39,45 @@ export function TimeSeries ({ tsArray, sourceId }: ChartProps)  {
     if (!chartComponentRef.current) return;
     const chart = chartComponentRef.current.chart;
 
+    
     // Ensure the chart is properly initialized before adding series
     if (chart && tsArray) {
+
+
       tsArray.forEach((ts) => {
 
-        
+        if (chartComponentRef.current?.chart.get(ts.tag) == null) {
 
-        const valueSeries: [number, number][] = ts.obstimes.map((value, index) => [value, ts.vals[index]]);
-        const errorSeries: [number, number, number][] = ts.obstimes.map((value, index) => [value, ts.vals[index] - ts.errs[index], ts.vals[index] + ts.errs[index]]);
+          const valueSeries: [number, number][] = ts.obstimes.map((value, index) => [value, ts.vals[index]]);
+          const errorSeries: [number, number, number][] = ts.obstimes.map((value, index) => [value, ts.vals[index] - ts.errs[index], ts.vals[index] + ts.errs[index]]);
+  
+          chart.addSeries({
+            type: 'scatter',
+            id: ts.tag,
+            name: ts.tag,
+            data: valueSeries,
+            marker: {
+              radius: 4,
+            },
+            tooltip: {
+              followPointer: false,
+              pointFormat: '[{point.x:.4f}, {point.y:.4f}]',
+            },
+          }, false, false);
+  
+          chart.addSeries({
+            id: ts.tag + "_err",
+            type: 'errorbar',
+            name: 'Error time series',
+            data: errorSeries,
+          }, false, false);
 
-        chart.addSeries({
-          type: 'scatter',
-          id: ts.tag,
-          name: ts.tag,
-          data: valueSeries,
-          marker: {
-            radius: 4,
-          },
-          tooltip: {
-            followPointer: false,
-            pointFormat: '[{point.x:.4f}, {point.y:.4f}]',
-          },
-        }, false, false);
-
-        chart.addSeries({
-          id: ts.tag + "_err",
-          type: 'errorbar',
-          name: 'Error time series',
-          data: errorSeries,
-        }, true, false);
+          // Redraw the chart after adding series
+          chart.redraw();
+        }
       });
 
-      // Redraw the chart after adding series
-      chart.redraw();
+
     }
   }, [tsArray]);
 

@@ -23,6 +23,8 @@ interface ts {
     vals: number[],
     errs: number[]
 }
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
 
 export default function Page() {
     const [selectedRun, setSelectedRun] = useState<run>();
@@ -33,6 +35,7 @@ export default function Page() {
 
 
     async function fetchData(run: number, source: number, tag: string) {
+        
         const response = await fetch(`/api/getTS?runid=${run}&sourceId=${source}&tags=${tag}`);
         const dataresponse = await response.json();
       
@@ -55,6 +58,8 @@ export default function Page() {
       }
 
     useEffect(() => {
+        
+        console.log("tag  or run change, reloading ")
 
         if (!Array.isArray(selectedTags)) {
             console.error("selectedTags is not an array, curious it was initialized");
@@ -71,22 +76,50 @@ export default function Page() {
         if (selectedRun && selectedTags && selectedTags.length > 0 && selectedSource) {
             // Find tags that are in selectedTags but not in loadedTs
             const tagsToLoad = selectedTags.filter(
-                (tag) => !loadedTs.some((loadedItem) => loadedItem.tag === tag)
+                (tag) => !loadedTs.some(
+                    (loadedItem) => (loadedItem.tag === tag && loadedItem.sourceid===selectedSource)  )
             );
 
-            if (tagsToLoad.length === 0) return; // No new tags to load
+            if (tagsToLoad.length === 0) {
+                console.log("Nothing new tag to load, quit load ...")
+                return; // No new tags to load
+            }
+            
 
 
 
             // Fetch data for each tag that needs to be loaded
             tagsToLoad.forEach((tag) => {
-                console.log("Tag to fetch " + tag)
+                console.log("Ts to fetch " + selectedSource +":" +tag +" for run "+ selectedRun)
                 fetchData(selectedRun,selectedSource,tag);
             });
         }
-    }, [selectedTags, selectedRun, selectedSource]); // Dependency array
+    }, [selectedTags, selectedRun]); // Dependency array
 
+    useEffect(() => {
+        
+        console.log("source  change, reloading with selected tags" + selectedSource +" selected")
 
+        setLoadedTs((previousTs) =>{ return []});
+        if (!Array.isArray(selectedTags)) {
+            console.error("selectedTags is not an array, curious it was initialized");
+            console.log(selectedTags)
+            return;
+        }
+
+        if (selectedRun && selectedTags && selectedTags.length > 0 && selectedSource) {
+            if (selectedTags.length === 0) {
+                console.log("Nothing new tag to load, quit load ...")
+                return; // No new tags to load
+            }
+
+            // Fetch data for each tag that needs to be loaded
+            selectedTags.forEach((tag) => {
+                console.log("Ts to fetch " + selectedSource +":" +tag +" for run "+ selectedRun)
+                fetchData(selectedRun,selectedSource,tag);
+            });
+        }
+    }, [ selectedSource]); // Dependency array
 
     return (
         <div className="flex flex-col min-h-screen p-4">
@@ -115,7 +148,7 @@ export default function Page() {
                         && Number(selectedSource) != 0
                         && selectedTags && selectedTags.length > 0
                         && loadedTs && loadedTs.length > 0
-                        && <TimeSeries runid={Number(selectedRun)} sourceId={Number(selectedSource)} tsArray={loadedTs} />}
+                        && <TimeSeries sourceId={Number(selectedSource)} tsArray={loadedTs} />}
                 </div>
             </div>
         </div>
