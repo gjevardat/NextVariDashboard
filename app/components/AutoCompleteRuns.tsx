@@ -72,7 +72,7 @@ export default function AutoCompleteRuns({ onRunSelect }: { onRunSelect: (run: a
                         setValue(""); // Set empty if newValue is null
                     }
                 }}
-
+                size='small'
                 sx={{ width: 750 }}
 
                 open={open}
@@ -90,17 +90,17 @@ export default function AutoCompleteRuns({ onRunSelect }: { onRunSelect: (run: a
                     <TextField
                         {...params}
                         label="Search run..."
-                        slotProps={{
-                            input: {
-                                ...params.InputProps,
-                                endAdornment: (
-                                    <React.Fragment>
-                                        {loading ? <CircularProgress color="inherit" size={20} /> : null}
-                                        {params.InputProps.endAdornment}
-                                    </React.Fragment>
-                                ),
-                            },
-                        }}
+                        // slotProps={{
+                        //     input: {
+                        //         ...params.InputProps,
+                        //         endAdornment: (
+                        //             <React.Fragment>
+                        //                 {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                        //                 {params.InputProps.endAdornment}
+                        //             </React.Fragment>
+                        //         ),
+                        //     },
+                        // }}
                     />
                 )}
             />

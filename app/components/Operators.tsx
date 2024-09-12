@@ -26,12 +26,14 @@ interface timeseriestag {
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export default function Operators({ run, selectedTags, onTagSelect }: { run: run; selectedTags: string[] | undefined; onTagSelect: (tags: string[]) => void; }) {
+export default function Operators({ run, selectedTags, onTagSelect }: { run: run; selectedTags: string[] ; onTagSelect: (tags: string[]) => void; }) {
 
-  const [value, setValue] = React.useState<string[]>([]);
-  const { data, error, isLoading } = useSWR("/api/getTimeSeriesResultTypes?runid=" + run, fetcher)
+  const [value, setValue] = React.useState<string[]>(selectedTags);
+  
+  const { data, error, isLoading } = useSWR("/api/getTimeSeriesResultTypes?runid=498", fetcher)
   if (!data) return <p>Loading</p>
 
+  //setValue((oldValue)=>{return selectedTags})
   const options: string[] = data.map((element: timeseriestag, index: number) => (element.tag));
 
   return (
@@ -53,11 +55,13 @@ export default function Operators({ run, selectedTags, onTagSelect }: { run: run
         }
       }
       }
-      sx={{ width: 750 }}
+      sx={{ width: 1250 }}
       multiple
       options={options}
+      //defaultValue={selectedTags}
       // getOptionLabel={(option) => option}
-      defaultValue={[]}
+      size='small'
+    
       renderInput={(params) => (
         <TextField
           {...params}

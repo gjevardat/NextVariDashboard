@@ -29,7 +29,9 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 export default function Page() {
     const [selectedRun, setSelectedRun] = useState<run>();
     const [selectedSource, setSelectedSource] = useState<number>();
-    const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    const [selectedTags, setSelectedTags] = useState<string[]>(['ExtremeErrorCleaningMagnitudeDependent_FOV_G','ExtremeErrorCleaningMagnitudeDependent_FOV_BP',
+        'ExtremeErrorCleaningMagnitudeDependent_FOV_RP'
+    ]);
     const [loadedTs, setLoadedTs] = useState<ts[]>([]);
     
 
@@ -129,7 +131,7 @@ export default function Page() {
             {/* Top Component */}
             <Stack direction="row" spacing={2}>
                 <AutoCompleteRuns onRunSelect={setSelectedRun} />
-                {selectedRun && <Operators run={selectedRun} selectedTags={selectedTags} onTagSelect={setSelectedTags} />}
+                <Operators run={selectedRun} selectedTags={selectedTags} onTagSelect={setSelectedTags} />
             </Stack>
 
             {/* Bottom Layout */}
