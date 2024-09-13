@@ -11,6 +11,7 @@ HC_more(Highcharts) //init module
 
 
 import HighchartsExporting from 'highcharts/modules/exporting'
+import { truncateSync } from 'fs';
 
 
 if (typeof Highcharts === 'object') {
@@ -18,7 +19,7 @@ if (typeof Highcharts === 'object') {
 }
 
 let options: Highcharts.Options = {};
-const fetcher = (url: any) => fetch(url).then((res) => res.json());
+
 
 interface Ts {
   tag: string;
@@ -32,14 +33,14 @@ interface ChartProps {
   sourceId: number;
 }
 
-export function TimeSeries ({ tsArray, sourceId }: ChartProps)  {
+export function TimeSeries({ tsArray, sourceId }: ChartProps) {
   const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
 
   useEffect(() => {
     if (!chartComponentRef.current) return;
     const chart = chartComponentRef.current.chart;
 
-    
+
     // Ensure the chart is properly initialized before adding series
     if (chart && tsArray) {
 
@@ -50,7 +51,15 @@ export function TimeSeries ({ tsArray, sourceId }: ChartProps)  {
 
           const valueSeries: [number, number][] = ts.obstimes.map((value, index) => [value, ts.vals[index]]);
           const errorSeries: [number, number, number][] = ts.obstimes.map((value, index) => [value, ts.vals[index] - ts.errs[index], ts.vals[index] + ts.errs[index]]);
-  
+
+          console.log('ts tag:' + ts.tag)
+          let markerColor = 'grey'; // Default color
+          if (ts.tag.includes("FOV_RP")) {
+            markerColor = 'red';
+          } else if (ts.tag.includes("FOV_BP")) {
+            markerColor = 'blue';
+          }
+          console.log("Marker color  "+ markerColor)
           chart.addSeries({
             type: 'scatter',
             id: ts.tag,
@@ -58,22 +67,27 @@ export function TimeSeries ({ tsArray, sourceId }: ChartProps)  {
             data: valueSeries,
             marker: {
               radius: 4,
+              fillColor: markerColor,
+              color: markerColor
             },
             tooltip: {
               followPointer: false,
               pointFormat: '[{point.x:.4f}, {point.y:.4f}]',
+              headerFormat: `<span style="color:${markerColor}">●</span> <span style="font-size: 0.8em"> {series.name}</span><br/>.`, // Use the markerColor
+              
             },
           }, false, false);
-  
+
           chart.addSeries({
             id: ts.tag + "_err",
             type: 'errorbar',
             name: 'Error time series',
             data: errorSeries,
-          }, false, false);
+            color: 'black'
+          }, true, false);
 
           // Redraw the chart after adding series
-          chart.redraw();
+          //chart.redraw();
         }
       });
 
