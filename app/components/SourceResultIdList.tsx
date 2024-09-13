@@ -1,7 +1,9 @@
+'use client'
 
 import { DataGrid, GridColDef, GridRowId, GridRowSelectionModel } from '@mui/x-data-grid';
-import React, { useRef } from 'react';
-import { getSourcesResultIds } from './getsourceresultids';
+import React, { useEffect, useRef, useState } from 'react';
+
+import useSWR from 'swr'
 
 interface run {
     runid: number,
@@ -13,31 +15,34 @@ interface source {
     sourceid: number,
 }
 
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+
 export function SourceResultId({ onSourceSelect, run }: { onSourceSelect: (source: any) => void; run: run | undefined }) {
 
     const columns: GridColDef[] = [
         { field: 'sourceid', headerName: 'Source id', width: 150 }
     ];
 
-
     const [paginationModel, setPaginationModel] = React.useState({
         pageSize: 10,
         page: 0,
     });
     const [rowSelectionModel, setRowSelectionModel] = React.useState<GridRowSelectionModel>([]);
-    const { sourceresultids, isLoading, isError } = getSourcesResultIds({ pageSize: paginationModel.pageSize, pageIndex: paginationModel.page, runid: run })
 
-    
+    const [sourceresultsids, setsourceids] = useState();
 
+    const { data, error, isLoading } = useSWR(`/api/getSourceResultId?runid=${run}&offset=${(paginationModel.page * paginationModel.pageSize)}&size=${paginationModel.pageSize}`, fetcher)
 
-    if (isError) return <p>error</p>
-    if (!sourceresultids) return <p>Loading</p>
-
-
-    if (sourceresultids) {
+    if (error) return <div>Failed to load</div>
+    if (!data) return <div>Loading...</div>
 
 
-        const elementsWithId = sourceresultids.map((element, index: number) => ({
+
+    if (data) {
+        console.log("sourceresult " + data)
+
+        const elementsWithId = data.map((element: any, index: number) => ({
             ...element,
             id: element.sourceid
         }));
@@ -57,6 +62,7 @@ export function SourceResultId({ onSourceSelect, run }: { onSourceSelect: (sourc
                     columns={columns}
                     rowCount={200}
                     loading={isLoading}
+                    density='compact'
                     pageSizeOptions={[10]}
                     paginationModel={paginationModel}
                     paginationMode="server"
@@ -68,4 +74,7 @@ export function SourceResultId({ onSourceSelect, run }: { onSourceSelect: (sourc
             </div>
         );
     }
+
+
+
 }
