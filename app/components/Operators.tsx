@@ -9,14 +9,11 @@ import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
+import { run } from  '@/app/types';
 
 import useSWR from 'swr'
 
 
-interface run {
-  runid: number,
-  runname: string
-}
 
 interface timeseriestag {
   tag: string,

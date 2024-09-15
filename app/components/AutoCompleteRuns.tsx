@@ -7,20 +7,16 @@ import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 
 import { getRuns } from '@/app/components/getruns';
+import { run } from '@/app/types';
 
 export default function AutoCompleteRuns({ onRunSelect }: { onRunSelect: (run: any) => void }) {
 
-    const { runs } = getRuns()
- 
-   
-   
-    let runnames: string[];
-    if (runs) {
-        runnames = runs.map((elem, index) => elem.runname)
-    }
+    const { runs } = getRuns() as { runs: run[] };
+
+
     const [open, setOpen] = React.useState(false);
-    const [value, setValue] = React.useState();
-    const [options, setOptions] = React.useState<readonly string[]>([]);
+    const [value, setValue] = React.useState<run>();
+    const [options, setOptions] = React.useState<readonly run[]>([]);
     const loading = open && options.length === 0;
 
     React.useEffect(() => {
@@ -34,7 +30,7 @@ export default function AutoCompleteRuns({ onRunSelect }: { onRunSelect: (run: a
             await sleep(0.01); // For demo purposes.
 
             if (active) {
-                setOptions([...runnames]);
+                setOptions(runs);
 
             }
         })();
@@ -50,28 +46,20 @@ export default function AutoCompleteRuns({ onRunSelect }: { onRunSelect: (run: a
         }
     }, [open]);
 
-    //if (isLoading) return <CircularProgress/>
-    //if (isError) return <p>Error</p>
-   
+
     return (
         <div>
 
 
             <Autocomplete
                 value={value}
-                onChange={(event: any, newValue: string | null) => {
+                onChange={(event: any, newValue: run | null) => {
                     if (newValue !== null) {
-                        const match = newValue.match(/_(\d+)$/); // Match number after the last underscore
-                        if (match !== null) {
-                            setValue(match[1]); // Set the extracted number
-                            onRunSelect(match[1])
-                        } else {
-                            setValue(""); // Set empty if no match is found
-                        }
-                    } else {
-                        setValue(""); // Set empty if newValue is null
+                        setValue(newValue); // Set the extracted number
+                        onRunSelect(newValue)
                     }
-                }}
+                }
+                }
                 size='small'
                 sx={{ width: 750 }}
 
@@ -82,25 +70,25 @@ export default function AutoCompleteRuns({ onRunSelect }: { onRunSelect: (run: a
                 onClose={() => {
                     setOpen(false);
                 }}
-                isOptionEqualToValue={(option, value) => option === value}
-                getOptionLabel={(option) => option}
+                isOptionEqualToValue={(option: run, value: run) => option.runid === value.runid}
+                getOptionLabel={(option: run) => (option.runname)}
                 options={options}
                 loading={loading}
                 renderInput={(params) => (
                     <TextField
                         {...params}
                         label="Search run..."
-                        // slotProps={{
-                        //     input: {
-                        //         ...params.InputProps,
-                        //         endAdornment: (
-                        //             <React.Fragment>
-                        //                 {loading ? <CircularProgress color="inherit" size={20} /> : null}
-                        //                 {params.InputProps.endAdornment}
-                        //             </React.Fragment>
-                        //         ),
-                        //     },
-                        // }}
+                    // slotProps={{
+                    //     input: {
+                    //         ...params.InputProps,
+                    //         endAdornment: (
+                    //             <React.Fragment>
+                    //                 {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                    //                 {params.InputProps.endAdornment}
+                    //             </React.Fragment>
+                    //         ),
+                    //     },
+                    // }}
                     />
                 )}
             />
@@ -110,8 +98,8 @@ export default function AutoCompleteRuns({ onRunSelect }: { onRunSelect: (run: a
 
 function sleep(duration: number): Promise<void> {
     return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        resolve();
-      }, duration);
+        setTimeout(() => {
+            resolve();
+        }, duration);
     });
-  }
+}

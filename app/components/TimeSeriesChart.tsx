@@ -101,7 +101,7 @@ export function TimeSeries({ tsArray, sourceId }: ChartProps) {
     },
     chart: {
       type: 'scatter',
-      height: '60%',
+      //height: '50%',
       zooming: {
         type: 'xy',
       },
@@ -128,6 +128,7 @@ export function TimeSeries({ tsArray, sourceId }: ChartProps) {
       highcharts={Highcharts}
       options={options}
       ref={chartComponentRef}
+      containerProps={ { style: { height: "100%" } }}
     />
   );
 };

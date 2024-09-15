@@ -7,22 +7,8 @@ import { SourceResultId } from '@/app/components/SourceResultIdList';
 import { TimeSeries } from '@/app/components/TimeSeriesChart';
 import Operators from '@/app/components/Operators'
 import Stack from '@mui/material/Stack';
-interface run {
-    runid: number,
-    runname: string
-}
+import { run, ts } from '@/app/types';
 
-interface source {
-    sourceid: number,
-}
-
-interface ts {
-    tag: string,
-    sourceid: number,
-    obstimes: number[],
-    vals: number[],
-    errs: number[]
-}
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 
@@ -36,16 +22,16 @@ export default function Page() {
     
 
 
-    async function fetchData(run: number, source: number, tag: string) {
+    async function fetchData(run: run, source: number, tag: string) {
         
-        const response = await fetch(`/api/getTS?runid=${run}&sourceId=${source}&tags=${tag}`);
+        const response = await fetch(`/api/getTS?runid=${run.runid}&sourceId=${source}&tags=${tag}`);
         const dataresponse = await response.json();
       
         console.log("response ", dataresponse);
         if (Array.isArray(dataresponse) && dataresponse.length > 0) {
             console.log("data response from ts loading: ", dataresponse[0].sourceid);
           
-            // Directly update the loadedTs state with fetched data
+            // Directly update the loadedTs state with fetche   d data
             setLoadedTs((prevLoadedTs) => [
               ...prevLoadedTs,
               {
@@ -135,17 +121,15 @@ export default function Page() {
             </Stack>
 
             {/* Bottom Layout */}
-            <div className="flex flex-1">
+            <div className="flex flex-1 h-full w-full">
 
                 {/* Left Section */}
-                <div className="w-1/4  p-4">
-                    <div className="flex">
-                        {selectedRun && <SourceResultId onSourceSelect={setSelectedSource} run={selectedRun} />}
-                    </div>
+                <div className="flex" style={{ width: '10%' }}>
+                    {selectedRun && <SourceResultId onSourceSelect={setSelectedSource} run={selectedRun} />}
                 </div>
 
                 {/* Right Section */}
-                <div className="flex-1 p-4 flex-grow" >
+                <div className="flex-1" >
                     {selectedSource
                         && Number(selectedSource) != 0
                         && selectedTags && selectedTags.length > 0
