@@ -52,7 +52,7 @@ export default function Operators({ run, selectedTags, onTagSelect }: { run: run
         }
       }
       }
-      sx={{ width: 1250 }}
+      //sx={{ width: 1250 }}
       multiple
       options={options}
       //defaultValue={selectedTags}

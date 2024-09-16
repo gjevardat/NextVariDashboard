@@ -1,22 +1,26 @@
 'use client';
 
-import { DataGrid, GridColDef, GridRowSelectionModel, GridToolbarContainer } from '@mui/x-data-grid';
 import React, { useEffect, useState } from 'react';
-import TextField from '@mui/material/TextField';
 import useSWR from 'swr';
-import Box from '@mui/material/TextField';
+import { DataGrid, GridColDef, GridRowSelectionModel, GridToolbarContainer } from '@mui/x-data-grid';
+import { IconButton, TextField } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import RefreshIcon from '@mui/icons-material/Refresh';
+
 
 import { run } from '@/app/types';
 
 interface EditToolbarProps {
     setRows: (newRows: (oldRows: any[]) => any[]) => void;
+    run: run;
+    setSelectedRun : ((run :run|undefined) => void);
     resetPagination: () => void;
     resetRowCount: (count: number) => void;
     setIsServerPagination: (isServerPagination: boolean) => void; // Add this prop to toggle server/client pagination
 }
 
 function EditToolbar(props: EditToolbarProps) {
-    const { setRows, resetPagination, resetRowCount, setIsServerPagination } = props;
+    const { setRows,run, setSelectedRun, resetPagination, resetRowCount, setIsServerPagination } = props;
     const [inputValue, setInputValue] = React.useState('');
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,11 +34,17 @@ function EditToolbar(props: EditToolbarProps) {
             sourceid: Number(id),
         }));
 
+
         setRows(() => newRows); // Replace the old rows with the new rows
         resetPagination(); // Reset pagination to show new rows from the first page
         resetRowCount(newRows.length); // Update the row count
         setIsServerPagination(false); // Switch to client-side pagination after replacing rows
         setInputValue(''); // Clear input field after replacing rows
+    };
+
+    const handleReload = () => {
+        console.log("Will reload");
+        setSelectedRun(run);
     };
 
     return (
@@ -51,21 +61,47 @@ function EditToolbar(props: EditToolbarProps) {
                     }
                 }}
             />
+            <IconButton
+                onClick={() => {
+
+                    setSelectedRun(undefined);
+                    setRows(() => []);
+                    resetPagination();
+                    resetRowCount(0);
+                    setIsServerPagination(false);
+                    setInputValue('')
+                }
+                }
+
+                aria-label="clear"
+                style={{ marginBottom: '10px' }}
+            >
+                <DeleteIcon />
+            </IconButton>
+
+            <IconButton
+                onClick={handleReload}  // Custom function to reload data or refresh component
+                aria-label="reload"
+                style={{ marginBottom: '10px' }}
+            >
+                <RefreshIcon />
+            </IconButton>
         </GridToolbarContainer>
     );
 }
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export function SourceResultId({ onSourceSelect, run }: { onSourceSelect: (source: any) => void; run: run | undefined }) {
-    const pageSize = 100;
+export function SourceResultId({ onSourceSelect, run , setSelectedRun}: { onSourceSelect: (source: any) => void; run: run | undefined , setSelectedRun : ((run :run) => void) }) {
+    const pageSize = 75;
 
     const columns: GridColDef[] = [
-        { field: 'sourceid', 
-            headerName: 'Source id', 
-            width: 150 ,  
-            flex: 1,          // Let it expand to fill available space
-            }     
+        {
+            field: 'sourceid',
+            headerName: 'Source id',
+            width: 150,
+            //   flex: 1,          // Let it expand to fill available space
+        }
     ];
 
     const [paginationModel, setPaginationModel] = useState({
@@ -74,16 +110,18 @@ export function SourceResultId({ onSourceSelect, run }: { onSourceSelect: (sourc
     });
     const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>([]);
     const [rows, setRows] = useState<any[]>([]);
+
     const [rowCount, setRowCount] = useState<number>(run?.size || 0); // Manage row count state
     const [isServerPagination, setIsServerPagination] = useState(true); // Add a state to toggle between server and client pagination
 
     const { data, error, isLoading } = useSWR(
-        isServerPagination ? `/api/getSourceResultId?runid=${run?.runid}&offset=${paginationModel.page * paginationModel.pageSize}&size=${paginationModel.pageSize}` : null,
+         `/api/getSourceResultId?runid=${run?.runid}&offset=${paginationModel.page * paginationModel.pageSize}&size=${paginationModel.pageSize}` ,
         fetcher
     );
 
     useEffect(() => {
-        if (data && isServerPagination) {
+        console.log("Shoul refetch data in useEffect")
+        if (data) {
             const elementsWithId = data.map((element: any) => ({
                 ...element,
                 id: element.sourceid, // Ensure a unique `id` field for DataGrid
@@ -91,7 +129,7 @@ export function SourceResultId({ onSourceSelect, run }: { onSourceSelect: (sourc
             setRows(elementsWithId);
             setRowCount(run?.size || elementsWithId.length); // Set row count from server or data size
         }
-    }, [data, run, isServerPagination]);
+    }, [data, run]);
 
     const resetPagination = () => {
         setPaginationModel({
@@ -108,40 +146,43 @@ export function SourceResultId({ onSourceSelect, run }: { onSourceSelect: (sourc
     if (!data && isLoading && isServerPagination) return <div>Loading...</div>;
 
     return (
-        
-            <DataGrid
-          
-                onRowSelectionModelChange={(newRowSelectionModel) => {
-                    
-                    setRowSelectionModel(newRowSelectionModel);
-                    onSourceSelect(newRowSelectionModel);
-                }}
-                rowSelectionModel={rowSelectionModel}
-                rows={rows}
-                columns={columns}
-                rowCount={rowCount} // Dynamically set the row count
-                loading={isLoading}
-                density="compact"
-                rowHeight={25}
-                pageSizeOptions={[10, 25, 50, 100]}
-                paginationModel={paginationModel}
-                paginationMode={isServerPagination ? 'server' : 'client'} // Switch pagination mode
-                onPaginationModelChange={(page) => {
-                    setPaginationModel(page);
-                    if (isServerPagination) {
-                        onSourceSelect(undefined); // Reset selection when using server-side pagination
-                    }
-                }}
-                processRowUpdate={(newRow) => newRow}
-                slots={{
-                    //columnHeaders: () => null,
-                    toolbar: EditToolbar as any,
-                }}
-                slotProps={{
-                    toolbar: { setRows, resetPagination, resetRowCount, setIsServerPagination },
-                }}
-            />
-        
+
+        <DataGrid
+            onRowSelectionModelChange={(newRowSelectionModel) => {
+
+                setRowSelectionModel(newRowSelectionModel);
+                onSourceSelect(newRowSelectionModel);
+            }}
+            rowSelectionModel={rowSelectionModel}
+            rows={rows}
+            autoHeight
+            columns={columns}
+            rowCount={rowCount} // Dynamically set the row count
+            loading={isLoading}
+            density="compact"
+            rowHeight={25}
+            //pageSizeOptions={[10, 25, 50, 100]}
+            paginationModel={paginationModel}
+            paginationMode={isServerPagination ? 'server' : 'client'} // Switch pagination mode
+            onPaginationModelChange={(page) => {
+                setPaginationModel(page);
+                if (isServerPagination) {
+                    onSourceSelect(undefined); // Reset selection when using server-side pagination
+                }
+            }}
+            processRowUpdate={(newRow) => newRow}
+            slots={{
+                columnHeaders: () => null,
+                toolbar: EditToolbar as any,
+            }}
+            slotProps={{
+                toolbar: { setRows, run, setSelectedRun, resetPagination, resetRowCount, setIsServerPagination },
+            }}
+
+
+
+        />
+
 
     );
 }

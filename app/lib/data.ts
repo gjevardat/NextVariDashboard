@@ -60,7 +60,7 @@ export async function getSourceResultsId(runid: Number, offset : Number, size: N
     try {
       
       const data = await pool.query(
-        `select tag, bandpass, domain  from timeseriesresulttype where run_runid = $1 order by 2`,
+        `select tag, bandpass, domain  from timeseriesresulttype where run_runid = $1 order by 1,2`,
         [runid]
       );
     
