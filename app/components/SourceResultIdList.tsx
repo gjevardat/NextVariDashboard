@@ -12,15 +12,14 @@ import { run } from '@/app/types';
 
 interface EditToolbarProps {
     setRows: (newRows: (oldRows: any[]) => any[]) => void;
-    run: run;
-    setSelectedRun : ((run :run|undefined) => void);
+    
     resetPagination: () => void;
     resetRowCount: (count: number) => void;
     setIsServerPagination: (isServerPagination: boolean) => void; // Add this prop to toggle server/client pagination
 }
 
 function EditToolbar(props: EditToolbarProps) {
-    const { setRows,run, setSelectedRun, resetPagination, resetRowCount, setIsServerPagination } = props;
+    const { setRows,  resetPagination, resetRowCount, setIsServerPagination } = props;
     const [inputValue, setInputValue] = React.useState('');
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,19 +32,14 @@ function EditToolbar(props: EditToolbarProps) {
             id: Number(id),
             sourceid: Number(id),
         }));
-
-
+        
         setRows(() => newRows); // Replace the old rows with the new rows
         resetPagination(); // Reset pagination to show new rows from the first page
         resetRowCount(newRows.length); // Update the row count
-        setIsServerPagination(false); // Switch to client-side pagination after replacing rows
+        setIsServerPagination(true); // Switch to client-side pagination after replacing rows
         setInputValue(''); // Clear input field after replacing rows
     };
 
-    const handleReload = () => {
-        console.log("Will reload");
-        setSelectedRun(run);
-    };
 
     return (
         <GridToolbarContainer>
@@ -54,47 +48,22 @@ function EditToolbar(props: EditToolbarProps) {
                 value={inputValue}
                 onChange={handleInputChange}
                 size="small"
-                style={{ marginRight: '10px', marginBottom: '10px' }}
+                style={{ marginRight: '10px', marginBottom: '10px', marginTop: '10px' }}
                 onKeyDown={(ev) => {
                     if (ev.key === 'Enter') {
                         handleReplaceRows();
                     }
                 }}
-            />
-            <IconButton
-                onClick={() => {
-
-                    setSelectedRun(undefined);
-                    setRows(() => []);
-                    resetPagination();
-                    resetRowCount(0);
-                    setIsServerPagination(false);
-                    setInputValue('')
-                }
-                }
-
-                aria-label="clear"
-                style={{ marginBottom: '10px' }}
-            >
-                <DeleteIcon />
-            </IconButton>
-
-            <IconButton
-                onClick={handleReload}  // Custom function to reload data or refresh component
-                aria-label="reload"
-                style={{ marginBottom: '10px' }}
-            >
-                <RefreshIcon />
-            </IconButton>
+            />          
         </GridToolbarContainer>
     );
 }
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export function SourceResultId({ onSourceSelect, run , setSelectedRun}: { onSourceSelect: (source: any) => void; run: run | undefined , setSelectedRun : ((run :run) => void) }) {
+export function SourceResultId({ onSourceSelect, run , setSelectedRun}: { onSourceSelect: (source: any) => void; run: run | undefined , setSelectedRun : (run :run) => void }) {
     const pageSize = 75;
-
+    
     const columns: GridColDef[] = [
         {
             field: 'sourceid',
@@ -120,7 +89,7 @@ export function SourceResultId({ onSourceSelect, run , setSelectedRun}: { onSour
     );
 
     useEffect(() => {
-        console.log("Shoul refetch data in useEffect")
+        
         if (data) {
             const elementsWithId = data.map((element: any) => ({
                 ...element,
@@ -149,7 +118,6 @@ export function SourceResultId({ onSourceSelect, run , setSelectedRun}: { onSour
 
         <DataGrid
             onRowSelectionModelChange={(newRowSelectionModel) => {
-
                 setRowSelectionModel(newRowSelectionModel);
                 onSourceSelect(newRowSelectionModel);
             }}
@@ -167,7 +135,7 @@ export function SourceResultId({ onSourceSelect, run , setSelectedRun}: { onSour
             onPaginationModelChange={(page) => {
                 setPaginationModel(page);
                 if (isServerPagination) {
-                    onSourceSelect(undefined); // Reset selection when using server-side pagination
+                    onSourceSelect(undefined); // Should take first row
                 }
             }}
             processRowUpdate={(newRow) => newRow}
@@ -176,7 +144,7 @@ export function SourceResultId({ onSourceSelect, run , setSelectedRun}: { onSour
                 toolbar: EditToolbar as any,
             }}
             slotProps={{
-                toolbar: { setRows, run, setSelectedRun, resetPagination, resetRowCount, setIsServerPagination },
+                toolbar: { setRows,  resetPagination, resetRowCount, setIsServerPagination },
             }}
 
 
