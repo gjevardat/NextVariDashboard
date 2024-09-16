@@ -68,8 +68,7 @@ export function SourceResultId({ onSourceSelect, run , setSelectedRun}: { onSour
         {
             field: 'sourceid',
             headerName: 'Source id',
-            width: 150,
-            //   flex: 1,          // Let it expand to fill available space
+            flex: 1,          // Let it expand to fill available space
         }
     ];
 
@@ -129,6 +128,7 @@ export function SourceResultId({ onSourceSelect, run , setSelectedRun}: { onSour
             loading={isLoading}
             density="compact"
             rowHeight={25}
+            
             //pageSizeOptions={[10, 25, 50, 100]}
             paginationModel={paginationModel}
             paginationMode={isServerPagination ? 'server' : 'client'} // Switch pagination mode
@@ -140,13 +140,16 @@ export function SourceResultId({ onSourceSelect, run , setSelectedRun}: { onSour
             }}
             processRowUpdate={(newRow) => newRow}
             slots={{
-                columnHeaders: () => null,
+                //columnHeaders: () => null,
                 toolbar: EditToolbar as any,
             }}
             slotProps={{
                 toolbar: { setRows,  resetPagination, resetRowCount, setIsServerPagination },
             }}
-
+            autosizeOptions={{
+                includeOutliers: true,                 // Columns sized to fit all cell content
+                includeHeaders: true,                  // Columns sized to fit all header content
+              }}
 
 
         />

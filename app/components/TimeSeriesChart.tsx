@@ -100,9 +100,9 @@ export function TimeSeries({ tsArray, sourceId }: ChartProps) {
     accessibility: {
       enabled: false,
     },
+    height: '50%',
     chart: {
       type: 'scatter',
-      height: '60%',
       zooming: {
         type: 'xy',
       },
