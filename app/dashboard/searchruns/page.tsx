@@ -125,11 +125,11 @@ export default function Page() {
 
                 <Grid container spacing={1} size={12} rowSpacing={1} sx={{ height: '100%', overflow: 'auto' }} >
 
-                    <Grid size={4} >
+                    <Grid size={2} >
                         {selectedRun && <SourceResultId onSourceSelect={setSelectedSource} run={selectedRun} setSelectedRun={setSelectedRun}/>}
 
                     </Grid>
-                    <Grid size={8} >
+                    <Grid size={10} >
                         {selectedSource
                             && Number(selectedSource) != 0
                             && selectedTags && selectedTags.length > 0
