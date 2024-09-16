@@ -114,33 +114,23 @@ export default function Page() {
     return (
 
 
-        <Grid container spacing={1}   sx={{
-            '--Grid-borderWidth': '1px',
-            borderTop: 'var(--Grid-borderWidth) solid',
-            borderLeft: 'var(--Grid-borderWidth) solid',
-            borderColor: 'divider',
-            '& > div': {
-              borderRight: 'var(--Grid-borderWidth) solid',
-              borderBottom: 'var(--Grid-borderWidth) solid',
-              borderColor: 'divider',
-            },
-          }} columns={{  xl: 12 }} display="flex" >
-            {/* First Row - Full Width */}
+        <Grid container  spacing={1}  display="flex" >
             
-                <Grid size={{xl:4}}  >
+            
+                <Grid size={4}  >
                     <AutoCompleteRuns onRunSelect={setSelectedRun} />
                 </Grid>
-                <Grid size={{xl:8}}  >
+                <Grid size={8}  >
                     <Operators run={selectedRun} selectedTags={selectedTags} onTagSelect={setSelectedTags} />
                 </Grid>
             
 
-            {/* Second Row - Chart Row */}
+
             
-                <Grid size={{xl:4}}   >
+                <Grid size={4}   >
                     {selectedRun && <SourceResultId onSourceSelect={setSelectedSource} run={selectedRun} setSelectedRun={setSelectedRun} />}
                 </Grid>
-                <Grid size={{xl:8}}  >
+                <Grid size={8}  >
                     {selectedSource && Number(selectedSource) !== 0 && selectedTags && selectedTags.length > 0 && loadedTs && loadedTs.length > 0 && (
                         <TimeSeries sourceId={Number(selectedSource)} tsArray={loadedTs} />
                     )}
