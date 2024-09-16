@@ -4,7 +4,7 @@ import React from 'react';
 import AutoCompleteRuns from '@/app/components/AutoCompleteRuns';
 import { useState, useEffect } from 'react'
 import { SourceResultId } from '@/app/components/SourceResultIdList';
-import { TimeSeries } from '@/app/components/TimeSeriesChart';
+import {TimeSeries} from '@/app/components/TimeSeriesChart';
 import Operators from '@/app/components/Operators'
 
 import Grid from '@mui/material/Grid2';
@@ -15,7 +15,7 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 
 export default function Page() {
-    const [selectedRun, setSelectedRun] = useState<run|undefined>();
+    const [selectedRun, setSelectedRun] = useState<run | undefined>();
     const [selectedSource, setSelectedSource] = useState<number>();
     const [selectedTags, setSelectedTags] = useState<string[]>(['ExtremeErrorCleaningMagnitudeDependent_FOV_G', 'ExtremeErrorCleaningMagnitudeDependent_FOV_BP',
         'ExtremeErrorCleaningMagnitudeDependent_FOV_RP'
@@ -113,35 +113,45 @@ export default function Page() {
 
     return (
 
-        <Box sx={{ flexGrow: 1 }}>
-            <Grid container spacing={1} sx={{ padding: 2 , height: '100vh', overflow: 'hidden' }}>
-                <Grid size={4}>
+
+        <Grid container spacing={1}   sx={{
+            '--Grid-borderWidth': '1px',
+            borderTop: 'var(--Grid-borderWidth) solid',
+            borderLeft: 'var(--Grid-borderWidth) solid',
+            borderColor: 'divider',
+            '& > div': {
+              borderRight: 'var(--Grid-borderWidth) solid',
+              borderBottom: 'var(--Grid-borderWidth) solid',
+              borderColor: 'divider',
+            },
+          }} columns={{  xl: 12 }} display="flex" >
+            {/* First Row - Full Width */}
+            
+                <Grid size={{xl:4}}  >
                     <AutoCompleteRuns onRunSelect={setSelectedRun} />
                 </Grid>
-                <Grid size={8}>
+                <Grid size={{xl:8}}  >
                     <Operators run={selectedRun} selectedTags={selectedTags} onTagSelect={setSelectedTags} />
                 </Grid>
+            
 
-
-                <Grid container spacing={1} size={12} rowSpacing={1} sx={{ height: '100%', overflow: 'auto' }} >
-
-                    <Grid size={2} >
-                        {selectedRun && <SourceResultId onSourceSelect={setSelectedSource} run={selectedRun} setSelectedRun={setSelectedRun}/>}
-
-                    </Grid>
-                    <Grid size={10} >
-                        {selectedSource
-                            && Number(selectedSource) != 0
-                            && selectedTags && selectedTags.length > 0
-                            && loadedTs && loadedTs.length > 0
-                            && <TimeSeries sourceId={Number(selectedSource)} tsArray={loadedTs} />}
-                    </Grid>
-
+            {/* Second Row - Chart Row */}
+            
+                <Grid size={{xl:4}}   >
+                    {selectedRun && <SourceResultId onSourceSelect={setSelectedSource} run={selectedRun} setSelectedRun={setSelectedRun} />}
                 </Grid>
+                <Grid size={{xl:8}}  >
+                    {selectedSource && Number(selectedSource) !== 0 && selectedTags && selectedTags.length > 0 && loadedTs && loadedTs.length > 0 && (
+                        <TimeSeries sourceId={Number(selectedSource)} tsArray={loadedTs} />
+                    )}
+                </Grid>
+            
+        </Grid>
 
 
-            </Grid>
-        </Box>
+
+
+
 
     )
 }

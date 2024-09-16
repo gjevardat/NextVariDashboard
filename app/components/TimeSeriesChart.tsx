@@ -122,15 +122,18 @@ export function TimeSeries({ tsArray, sourceId }: ChartProps) {
     title: {
       text: String(sourceId),
     },
+    
   };
 
   return (
+    <div style={{height: "100vh"}}>
     <HighchartsReact
       highcharts={Highcharts}
       options={options}
       ref={chartComponentRef}
-     // containerProps={ { style: { height: "100%" } }}
+      containerProps={ { style: { height: "100%" } }}
     />
+    </div>
   );
 };
 

@@ -62,7 +62,7 @@ function EditToolbar(props: EditToolbarProps) {
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export function SourceResultId({ onSourceSelect, run , setSelectedRun}: { onSourceSelect: (source: any) => void; run: run | undefined , setSelectedRun : (run :run) => void }) {
-    const pageSize = 75;
+    const pageSize = 50;
     
     const columns: GridColDef[] = [
         {
