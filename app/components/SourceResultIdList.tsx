@@ -62,7 +62,7 @@ function EditToolbar(props: EditToolbarProps) {
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export function SourceResultId({ onSourceSelect, run , setSelectedRun}: { onSourceSelect: (source: any) => void; run: run | undefined , setSelectedRun : (run :run) => void }) {
-    const pageSize = 50;
+    const pageSize = 100;
     
     const columns: GridColDef[] = [
         {
@@ -122,7 +122,7 @@ export function SourceResultId({ onSourceSelect, run , setSelectedRun}: { onSour
             }}
             rowSelectionModel={rowSelectionModel}
             rows={rows}
-            autoHeight
+            
             columns={columns}
             rowCount={rowCount} // Dynamically set the row count
             loading={isLoading}
@@ -140,16 +140,18 @@ export function SourceResultId({ onSourceSelect, run , setSelectedRun}: { onSour
             }}
             processRowUpdate={(newRow) => newRow}
             slots={{
-                //columnHeaders: () => null,
+                columnHeaders: () => null,
                 toolbar: EditToolbar as any,
             }}
             slotProps={{
                 toolbar: { setRows,  resetPagination, resetRowCount, setIsServerPagination },
             }}
-            autosizeOptions={{
-                includeOutliers: true,                 // Columns sized to fit all cell content
-                includeHeaders: true,                  // Columns sized to fit all header content
-              }}
+            sx={{
+                '.MuiDataGrid-columnSeparator': {
+                    display: 'none',
+                },
+                '.MuiDataGrid-selectedRowCount':{display: 'none'}
+            }}
 
 
         />

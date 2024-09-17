@@ -4,7 +4,7 @@ import React from 'react';
 import AutoCompleteRuns from '@/app/components/AutoCompleteRuns';
 import { useState, useEffect } from 'react'
 import { SourceResultId } from '@/app/components/SourceResultIdList';
-import {TimeSeries} from '@/app/components/TimeSeriesChart';
+import { TimeSeries } from '@/app/components/TimeSeriesChart';
 import Operators from '@/app/components/Operators'
 
 import Grid from '@mui/material/Grid2';
@@ -113,8 +113,17 @@ export default function Page() {
 
     return (
 
-
-        <Grid container  spacing={1}  display="flex" >
+        <div className="grid-container">
+        <div className="grid-item itemtop"> <AutoCompleteRuns onRunSelect={setSelectedRun} /></div>
+        <div className="grid-item itemtop"> <Operators run={selectedRun} selectedTags={selectedTags} onTagSelect={setSelectedTags} />
+        </div>
+        <div className="grid-item item3">                    {selectedRun && <SourceResultId onSourceSelect={setSelectedSource} run={selectedRun} setSelectedRun={setSelectedRun} />}
+        </div>
+        <div className="grid-item item4">{selectedSource && Number(selectedSource) !== 0 && selectedTags && selectedTags.length > 0 && loadedTs && loadedTs.length > 0 && (
+                        <TimeSeries sourceId={Number(selectedSource)} tsArray={loadedTs} />
+                    )}</div>
+      </div>
+      /*   <Grid container  spacing={1}  display="flex" >
             
             
                 <Grid size={4}  >
@@ -136,7 +145,7 @@ export default function Page() {
                     )}
                 </Grid>
             
-        </Grid>
+        </Grid> */
 
 
 
