@@ -117,7 +117,7 @@ export default function Page() {
         <div className="grid-item itemtop"> <AutoCompleteRuns onRunSelect={setSelectedRun} /></div>
         <div className="grid-item itemtop"> <Operators run={selectedRun} selectedTags={selectedTags} onTagSelect={setSelectedTags} />
         </div>
-        <div className="grid-item item3">                    {selectedRun && <SourceResultId onSourceSelect={setSelectedSource} run={selectedRun} setSelectedRun={setSelectedRun} />}
+        <div className="grid-item itemsourcebrowser">                    {selectedRun && <SourceResultId onSourceSelect={setSelectedSource} run={selectedRun} setSelectedRun={setSelectedRun} />}
         </div>
         <div className="grid-item item4">{selectedSource && Number(selectedSource) !== 0 && selectedTags && selectedTags.length > 0 && loadedTs && loadedTs.length > 0 && (
                         <TimeSeries sourceId={Number(selectedSource)} tsArray={loadedTs} />

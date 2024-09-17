@@ -56,16 +56,15 @@ body {
     width: 100%;
     /* Fill the width of the grid cell */
     height: 100%;
+    padding-right: 10px;
+    padding-left: 10px;
   }
   
   /* Optional: Specific styles for each grid item */
   .itemtop {
     padding: 10px;
-  }
-/*
-  .item2 {
-    background-color: #add8e6;
-  }
+    }
+    /*
 
   .item3 {
     background-color: #90ee90;
