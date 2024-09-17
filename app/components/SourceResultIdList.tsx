@@ -139,13 +139,13 @@ export function SourceResultId({ onSourceSelect, run , setSelectedRun}: { onSour
                 }
             }}
             processRowUpdate={(newRow) => newRow}
-            slots={{
+            /* slots={{
                 columnHeaders: () => null,
                 toolbar: EditToolbar as any,
             }}
             slotProps={{
                 toolbar: { setRows,  resetPagination, resetRowCount, setIsServerPagination },
-            }}
+            }} */
             sx={{
                 '.MuiDataGrid-columnSeparator': {
                     display: 'none',
