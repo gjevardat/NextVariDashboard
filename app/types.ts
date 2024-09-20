@@ -15,3 +15,9 @@ export interface ts {
     vals: number[],
     errs: number[]
 }
+
+export interface timeseriestag {
+    tag: string,
+    bandpass: string,
+    domain: string
+  }

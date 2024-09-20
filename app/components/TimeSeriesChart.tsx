@@ -100,7 +100,7 @@ export function TimeSeries({ tsArray, sourceId }: ChartProps) {
     accessibility: {
       enabled: false,
     },
-    height: '50%',
+    //height: '50%',
     chart: {
       type: 'scatter',
       zooming: {
@@ -120,7 +120,7 @@ export function TimeSeries({ tsArray, sourceId }: ChartProps) {
       },
     },
     title: {
-      text: String(sourceId),
+      text: sourceId?String(sourceId):"No source selected",
     },
     
   };

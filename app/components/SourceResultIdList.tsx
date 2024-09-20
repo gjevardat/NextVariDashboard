@@ -89,7 +89,7 @@ export function SourceResultId({ onSourceSelect, run , setSelectedRun}: { onSour
 
     useEffect(() => {
         
-        if (data) {
+        if (data && data.length>0) {
             const elementsWithId = data.map((element: any) => ({
                 ...element,
                 id: element.sourceid, // Ensure a unique `id` field for DataGrid

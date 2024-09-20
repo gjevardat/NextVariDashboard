@@ -6,30 +6,30 @@ import { useState, useEffect } from 'react'
 import { SourceResultId } from '@/app/components/SourceResultIdList';
 import { TimeSeries } from '@/app/components/TimeSeriesChart';
 import Operators from '@/app/components/Operators'
+import { run, ts , timeseriestag} from '@/app/types';
+import { getRuns } from '@/app/components/getruns';
 
-import Grid from '@mui/material/Grid2';
-import Box from '@mui/material/Box';
-import { run, ts } from '@/app/types';
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 
 export default function Page() {
-    const [selectedRun, setSelectedRun] = useState<run | undefined>();
+    
+    
+    const [availableRuns,setAvailableRuns] = useState<run[] >(getRuns().runs);
+    const [availableTags,setAvailableTags] = useState<timeseriestag[] >([]);
+    
+    const [selectedRun, setSelectedRun] = useState<run>();
     const [selectedSource, setSelectedSource] = useState<number>();
-    const [selectedTags, setSelectedTags] = useState<string[]>(['ExtremeErrorCleaningMagnitudeDependent_FOV_G', 'ExtremeErrorCleaningMagnitudeDependent_FOV_BP',
-        'ExtremeErrorCleaningMagnitudeDependent_FOV_RP'
-    ]);
+    const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [loadedTs, setLoadedTs] = useState<ts[]>([]);
 
 
-
-    async function fetchData(run: run, source: number, tag: string) {
+    async function fetchTimeSeries(run: run, source: number, tag: string) {
 
         const response = await fetch(`/api/getTS?runid=${run.runid}&sourceId=${source}&tags=${tag}`);
         const dataresponse = await response.json();
 
-        console.log("response ", dataresponse);
+        console.log("fetchTimeSeries call from page.tsx", dataresponse);
         if (Array.isArray(dataresponse) && dataresponse.length > 0) {
             console.log("data response from ts loading: ", dataresponse[0].sourceid);
 
@@ -47,111 +47,66 @@ export default function Page() {
         }
     }
 
+    async function fetchRunTimeSeriesTag(run: run){
+        const response = await fetch(`/api/getTimeSeriesResultTypes?runid=${run.runid}`)
+        const dataresponse = await response.json();
+
+        setAvailableTags(dataresponse)
+    }
+
     useEffect(() => {
 
-        console.log("tag  or run change, reloading ")
-
-        if (!Array.isArray(selectedTags)) {
-            console.error("selectedTags is not an array, curious it was initialized");
-            console.log(selectedTags)
-            return;
-        }
-
-        // Check if loadedTs is an array
-        if (!Array.isArray(loadedTs)) {
-            console.error("loadedTs is not an array");
-            return;
-        }
-
+        console.log("tag  or run change, reloading  ts")
+        setLoadedTs((previousTs) => { return [] });
+       
         if (selectedRun && selectedTags && selectedTags.length > 0 && selectedSource) {
             // Find tags that are in selectedTags but not in loadedTs
-            const tagsToLoad = selectedTags.filter(
-                (tag) => !loadedTs.some(
-                    (loadedItem) => (loadedItem.tag === tag && loadedItem.sourceid === selectedSource))
-            );
+            const tagsToLoad = selectedTags
 
             if (tagsToLoad.length === 0) {
                 console.log("Nothing new tag to load, quit load ...")
                 return; // No new tags to load
             }
 
-
-
-
             // Fetch data for each tag that needs to be loaded
             tagsToLoad.forEach((tag) => {
                 console.log("Ts to fetch " + selectedSource + ":" + tag + " for run " + selectedRun)
-                fetchData(selectedRun, selectedSource, tag);
+                fetchTimeSeries(selectedRun, selectedSource, tag);
             });
         }
-    }, [selectedTags, selectedRun]); // Dependency array
+    }, [selectedTags, selectedRun, selectedSource]); // Any change in one of these states will trigger the useEffect function
 
-    useEffect(() => {
-
-        console.log("source  change, reloading with selected tags" + selectedSource + " selected")
-
-        setLoadedTs((previousTs) => { return [] });
-        if (!Array.isArray(selectedTags)) {
-            console.error("selectedTags is not an array, curious it was initialized");
-            console.log(selectedTags)
-            return;
+    useEffect(()=>{
+        if(selectedRun !== undefined){
+            console.log("selectedRun has changed !" + selectedRun);
+            fetchRunTimeSeriesTag(selectedRun);
         }
-
-        if (selectedRun && selectedTags && selectedTags.length > 0 && selectedSource) {
-            if (selectedTags.length === 0) {
-                console.log("Nothing new tag to load, quit load ...")
-                return; // No new tags to load
-            }
-
-            // Fetch data for each tag that needs to be loaded
-            selectedTags.forEach((tag) => {
-                console.log("Ts to fetch " + selectedSource + ":" + tag + " for run " + selectedRun)
-                fetchData(selectedRun, selectedSource, tag);
-            });
+    },[selectedRun]);
+    useEffect(()=>{
+        if(selectedTags !== undefined){
+            console.log("selectedTags has changed !");
         }
-    }, [selectedSource]); // Dependency array
+    },[selectedTags]);
+    useEffect(()=>{
+        console.log("selectedSource has changed !");
+    },[selectedSource]);
 
     return (
 
         <div className="grid-container">
-        <div className="grid-item itemtop"> <AutoCompleteRuns onRunSelect={setSelectedRun} /></div>
-        <div className="grid-item itemtop"> <Operators run={selectedRun} selectedTags={selectedTags} onTagSelect={setSelectedTags} />
+            <div className="grid-item itemtop">
+                <AutoCompleteRuns runs={availableRuns} onRunSelect={setSelectedRun} />
+            </div>
+            <div className="grid-item itemtop">
+                <Operators availableTags={availableTags} selectedTags={selectedTags} onTagSelect={setSelectedTags} />
+            </div>
+            <div className="grid-item itemsourcebrowser">
+                <SourceResultId run={selectedRun} onSourceSelect={setSelectedSource} setSelectedRun={setSelectedRun} />
+            </div>
+            <div className="grid-item">
+                <TimeSeries sourceId={Number(selectedSource)} tsArray={loadedTs} />
+            </div>
         </div>
-        <div className="grid-item itemsourcebrowser">                    {selectedRun && <SourceResultId onSourceSelect={setSelectedSource} run={selectedRun} setSelectedRun={setSelectedRun} />}
-        </div>
-        <div className="grid-item item4">{selectedSource && Number(selectedSource) !== 0 && selectedTags && selectedTags.length > 0 && loadedTs && loadedTs.length > 0 && (
-                        <TimeSeries sourceId={Number(selectedSource)} tsArray={loadedTs} />
-                    )}</div>
-      </div>
-      /*   <Grid container  spacing={1}  display="flex" >
-            
-            
-                <Grid size={4}  >
-                    <AutoCompleteRuns onRunSelect={setSelectedRun} />
-                </Grid>
-                <Grid size={8}  >
-                    <Operators run={selectedRun} selectedTags={selectedTags} onTagSelect={setSelectedTags} />
-                </Grid>
-            
-
-
-            
-                <Grid size={4}   >
-                    {selectedRun && <SourceResultId onSourceSelect={setSelectedSource} run={selectedRun} setSelectedRun={setSelectedRun} />}
-                </Grid>
-                <Grid size={8}  >
-                    {selectedSource && Number(selectedSource) !== 0 && selectedTags && selectedTags.length > 0 && loadedTs && loadedTs.length > 0 && (
-                        <TimeSeries sourceId={Number(selectedSource)} tsArray={loadedTs} />
-                    )}
-                </Grid>
-            
-        </Grid> */
-
-
-
-
-
-
     )
 }
 
