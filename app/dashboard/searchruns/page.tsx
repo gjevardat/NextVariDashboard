@@ -15,12 +15,12 @@ import { getRuns } from '@/app/components/getruns';
 export default function Page() {
     
     
-    const [availableRuns,setAvailableRuns] = useState<run[] >(getRuns().runs);
+    const [availableRuns,setAvailableRuns] = useState<run[] >( []);
     const [availableTags,setAvailableTags] = useState<timeseriestag[] >([]);
     
     const [selectedRun, setSelectedRun] = useState<run>();
     const [selectedSource, setSelectedSource] = useState<number>();
-    const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    const [selectedTags, setSelectedTags] = useState<string[]>(['ExtremeErrorCleaningMagnitudeDependent_FOV_G']);
     const [loadedTs, setLoadedTs] = useState<ts[]>([]);
 
 
@@ -33,7 +33,7 @@ export default function Page() {
         if (Array.isArray(dataresponse) && dataresponse.length > 0) {
             console.log("data response from ts loading: ", dataresponse[0].sourceid);
 
-            // Directly update the loadedTs state with fetche   d data
+            // Directly update the loadedTs state with fetched data
             setLoadedTs((prevLoadedTs) => [
                 ...prevLoadedTs,
                 {
@@ -55,11 +55,27 @@ export default function Page() {
     }
 
     useEffect(() => {
+        async function fetchRuns() {
+            try {
+                
+                const runs = await getRuns(); // Fetch runs data
+                console.log("Loaded runs:   " + runs.length)
+                setAvailableRuns(runs); // Update state with the fetched data
+            } catch (error) {
+                console.error("Failed to fetch runs:", error);
+            }
+        }
 
-        console.log("tag  or run change, reloading  ts")
-        setLoadedTs((previousTs) => { return [] });
-       
+        fetchRuns(); 
+    }, []); // Empty dependency array means it runs once when the component mounts
+
+    useEffect(() => {
+
+        setLoadedTs( (prevTs) => {return []});
+        console.log("tag   run or source change change, reloading  ts")
+        
         if (selectedRun && selectedTags && selectedTags.length > 0 && selectedSource) {
+            //setLoadedTs((previousTs) => { [] });
             // Find tags that are in selectedTags but not in loadedTs
             const tagsToLoad = selectedTags
 
@@ -69,6 +85,7 @@ export default function Page() {
             }
 
             // Fetch data for each tag that needs to be loaded
+       
             tagsToLoad.forEach((tag) => {
                 console.log("Ts to fetch " + selectedSource + ":" + tag + " for run " + selectedRun)
                 fetchTimeSeries(selectedRun, selectedSource, tag);

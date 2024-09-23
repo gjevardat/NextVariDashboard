@@ -11,7 +11,7 @@ HC_more(Highcharts) //init module
 
 
 import HighchartsExporting from 'highcharts/modules/exporting'
-import { truncateSync } from 'fs';
+
 
 
 if (typeof Highcharts === 'object') {
@@ -37,18 +37,27 @@ export function TimeSeries({ tsArray, sourceId }: ChartProps) {
   const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
 
   useEffect(() => {
+
+    
     if (!chartComponentRef.current) return;
     const chart = chartComponentRef.current.chart;
+    
 
 
-    // Ensure the chart is properly initialized before adding series
+    // Check if necessary to ensure the chart is properly initialized before adding series
     if (chart && tsArray) {
 
 
+      //clean existing series
+      while (chart.series.length) {
+        chart.series[0].remove();
+    }
+
       tsArray.forEach((ts) => {
 
-        if (chartComponentRef.current?.chart.get(ts.tag) == null) {
+    
 
+          console.log('ts tag:' + ts.tag + " " + ts.vals)
           const valueSeries: [number, number][] = ts.obstimes.map((value, index) => [value, ts.vals[index]]);
           const errorSeries: [number, number, number][] = ts.obstimes.map((value, index) => [value, ts.vals[index] - ts.errs[index], ts.vals[index] + ts.errs[index]]);
 
@@ -87,8 +96,8 @@ export function TimeSeries({ tsArray, sourceId }: ChartProps) {
           }, true, false);
 
           // Redraw the chart after adding series
-          //chart.redraw();
-        }
+        //  chart.redraw();
+        
       });
 
 

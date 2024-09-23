@@ -8,23 +8,17 @@ import TextField from '@mui/material/TextField';
 
 import { run } from '@/app/types';
 
-export default function AutoCompleteRuns({runs, onRunSelect }: {runs:run[]|undefined; onRunSelect: (run: any) => void }) {
+export default function AutoCompleteRuns({runs, onRunSelect }: {runs:run[]; onRunSelect: (run: any) => void }) {
 
 
 
     const [open, setOpen] = React.useState(false);
     const [value, setValue] = React.useState<run>();
-    const [options, setOptions] = React.useState<readonly run[]|undefined>(runs);
+    const [options, setOptions] = React.useState<readonly run[]>([]);
     const loading = false;// open &&     options && options.length === 0;
 
     
-    React.useEffect(() => {
-        if (!open) {
-            setOptions([]);
-        }
-    }, [open]);
-
-
+ 
     return (
         <div>
 
@@ -50,7 +44,7 @@ export default function AutoCompleteRuns({runs, onRunSelect }: {runs:run[]|undef
                 }}
                 isOptionEqualToValue={(option: run, value: run) => option.runid === value.runid}
                 getOptionLabel={(option: run) => (option.runname)}
-                options={options}
+                options={runs}
                 loading={loading}
                 renderInput={(params) => (
                     <TextField

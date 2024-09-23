@@ -1,7 +1,9 @@
 export interface run {
     runid: number,
-    runname: string
-    size:number
+    runname: string,
+    size:number,
+    state:string;
+    creationdate:string
 }
 
 export interface source {

@@ -2,6 +2,7 @@
 
 import type { NextApiRequest, NextApiResponse } from "next";
 import pool from '@/app/lib/db'
+import { run } from "../types";
 
 
 export async function getTS(runid:Number, sourceId: Number, tags: string) {
@@ -21,7 +22,7 @@ export async function getTS(runid:Number, sourceId: Number, tags: string) {
 }
 
 
-export async function getRun(offset : Number, size: Number) {
+export async function getRun(offset : Number, size: Number)  {
 
 
   try {
