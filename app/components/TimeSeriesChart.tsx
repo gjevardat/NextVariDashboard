@@ -8,9 +8,9 @@ import HighchartsReact from 'highcharts-react-official'
 import HighchartsMore from 'highcharts/highcharts-more';
 
 
-HighchartsMore(Highcharts);
 if (typeof Highcharts === 'object') {
-    HighchartsExporting(Highcharts)
+  HighchartsExporting(Highcharts)
+  HighchartsMore(Highcharts);
 }
 
 

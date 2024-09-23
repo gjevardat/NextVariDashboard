@@ -57,9 +57,8 @@ function EditToolbar(props: EditToolbarProps) {
     );
 }
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export function SourceResultId({ run , onSourceSelect}: {  run: run; onSourceSelect: (source: any) => void  }) {
+export function SourceResultId({ run , onSourceSelect}: {  run: run|undefined; onSourceSelect: (source: source) => void  }) {
     const pageSize = 100;
     
     const columns: GridColDef[] = [
@@ -122,7 +121,8 @@ export function SourceResultId({ run , onSourceSelect}: {  run: run; onSourceSel
         <DataGrid
             onRowSelectionModelChange={(newRowSelectionModel) => {
                 setRowSelectionModel(newRowSelectionModel);
-                onSourceSelect(newRowSelectionModel);
+                console.log("selected row : ",newRowSelectionModel[0])
+                onSourceSelect({sourceid:BigInt(newRowSelectionModel[0])});
             }}
             
             rowSelectionModel={rowSelectionModel}

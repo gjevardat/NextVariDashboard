@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from 'react'
 import { SourceResultId } from '@/app/components/SourceResultIdList';
 import { TimeSeries } from '@/app/components/TimeSeriesChart';
 import Operators from '@/app/components/Operators'
-import { run, ts , timeseriestag} from '@/app/types';
+import { run, ts , timeseriestag, source} from '@/app/types';
 import { getRuns } from '@/app/components/getruns';
 
 
@@ -18,7 +18,7 @@ export default function Page() {
     const [availableRuns,setAvailableRuns] = useState<run[] >( []);
     const [availableTags,setAvailableTags] = useState<timeseriestag[] >([]);
     const [selectedRun, setSelectedRun] = useState<run>();
-    const [selectedSource, setSelectedSource] = useState<bigint>(BigInt(0));
+    const [selectedSource, setSelectedSource] = useState<source>();
     const [selectedTags, setSelectedTags] = useState<string[]>(['ExtremeErrorCleaningMagnitudeDependent_FOV_G','ExtremeErrorCleaningMagnitudeDependent_FOV_BP','ExtremeErrorCleaningMagnitudeDependent_FOV_RP']);
     const [loadedTs, setLoadedTs] = useState<ts[]>([]);
 
@@ -31,9 +31,9 @@ export default function Page() {
         const response = await fetch(`/api/getTS?runid=${run.runid}&sourceId=${source}&tags=${tag}`);
         const dataresponse = await response.json();
 
-        console.log("fetchTimeSeries call from page.tsx", source, dataresponse);
+        
         if (Array.isArray(dataresponse) && dataresponse.length > 0) {
-            console.log("data response from ts loading: ", dataresponse[0].sourceid);
+        
 
             // Directly update the loadedTs state with fetched data
             setLoadedTs((prevLoadedTs) => [
@@ -82,7 +82,7 @@ export default function Page() {
             }
 
             tagsToLoad.forEach((tag) => {
-                fetchTimeSeries(selectedRun, selectedSource, tag);
+                fetchTimeSeries(selectedRun, selectedSource.sourceid, tag);
             });
         }        
     }, [selectedTags, selectedRun, selectedSource]); // Any change in one of these states will trigger the useEffect function
@@ -101,7 +101,7 @@ export default function Page() {
                 <SourceResultId run={selectedRun} onSourceSelect={setSelectedSource} setSelectedRun={setSelectedRun} />
             </div>
             <div className="grid-item">
-                <TimeSeries tsArray={loadedTs} sourceId={selectedSource?BigInt(selectedSource):undefined}/>
+                <TimeSeries tsArray={loadedTs} sourceId={selectedSource?selectedSource.sourceid:undefined}/>
             </div>
         </div>
     )
