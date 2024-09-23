@@ -24,7 +24,7 @@ interface Ts {
 
 interface ChartProps {
   tsArray: Ts[];
-  sourceId: BigInt;
+  sourceId: bigint|undefined;
 }
 
 export function TimeSeries({ tsArray, sourceId }: ChartProps) {

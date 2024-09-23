@@ -18,7 +18,7 @@ export default function Page() {
     const [availableRuns,setAvailableRuns] = useState<run[] >( []);
     const [availableTags,setAvailableTags] = useState<timeseriestag[] >([]);
     const [selectedRun, setSelectedRun] = useState<run>();
-    const [selectedSource, setSelectedSource] = useState<BigInt>(BigInt(0));
+    const [selectedSource, setSelectedSource] = useState<bigint>(BigInt(0));
     const [selectedTags, setSelectedTags] = useState<string[]>(['ExtremeErrorCleaningMagnitudeDependent_FOV_G','ExtremeErrorCleaningMagnitudeDependent_FOV_BP','ExtremeErrorCleaningMagnitudeDependent_FOV_RP']);
     const [loadedTs, setLoadedTs] = useState<ts[]>([]);
 
@@ -26,7 +26,7 @@ export default function Page() {
 
     
 
-    async function fetchTimeSeries(run: run, source: BigInt, tag: string) {
+    async function fetchTimeSeries(run: run, source: bigint, tag: string) {
 
         const response = await fetch(`/api/getTS?runid=${run.runid}&sourceId=${source}&tags=${tag}`);
         const dataresponse = await response.json();
@@ -72,45 +72,22 @@ export default function Page() {
     }, []); // Empty dependency array means it runs once when the component mounts
    
     useEffect(() => {
-
-        
         setLoadedTs( (prevTs) => {return []});
-        console.log("tag   run or source change change, reloading  ts")
-        
         if (selectedRun && selectedTags && selectedTags.length > 0 && selectedSource) {
-            //setLoadedTs((previousTs) => { [] });
-            // Find tags that are in selectedTags but not in loadedTs
+
             const tagsToLoad = selectedTags
 
             if (tagsToLoad.length === 0) {
-                console.log("Nothing new tag to load, quit load ...")
                 return; // No new tags to load
             }
 
-            // Fetch data for each tag that needs to be loaded
-       
             tagsToLoad.forEach((tag) => {
-                console.log("Ts to fetch " + selectedSource + ":" + tag + " for run " + selectedRun)
                 fetchTimeSeries(selectedRun, selectedSource, tag);
             });
         }        
     }, [selectedTags, selectedRun, selectedSource]); // Any change in one of these states will trigger the useEffect function
 
-    useEffect(()=>{
-        if(selectedRun !== undefined){
-            console.log("selectedRun has changed !" + selectedRun);
-            fetchRunTimeSeriesTag(selectedRun);
-        }
-    },[selectedRun]);
-    useEffect(()=>{
-        if(selectedTags !== undefined){
-            console.log("selectedTags has changed !");
-        }
-    },[selectedTags]);
-    useEffect(()=>{
-        console.log("selectedSource has changed !");
-    },[selectedSource]);
-
+  
     return (
 
         <div className="grid-container">
@@ -124,7 +101,7 @@ export default function Page() {
                 <SourceResultId run={selectedRun} onSourceSelect={setSelectedSource} setSelectedRun={setSelectedRun} />
             </div>
             <div className="grid-item">
-                <TimeSeries tsArray={loadedTs} sourceId={BigInt(selectedSource)}/>
+                <TimeSeries tsArray={loadedTs} sourceId={selectedSource?BigInt(selectedSource):undefined}/>
             </div>
         </div>
     )
