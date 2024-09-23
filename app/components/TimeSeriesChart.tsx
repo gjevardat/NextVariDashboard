@@ -1,23 +1,17 @@
 'use client'
 
 import React, { useRef, useEffect } from 'react';
-import * as Highcharts from 'highcharts';
-import { HighchartsReact } from 'highcharts-react-official';
 
-
-
-import HC_more from 'highcharts/highcharts-more' //module
-HC_more(Highcharts) //init module
-
-
+import Highcharts from 'highcharts'
 import HighchartsExporting from 'highcharts/modules/exporting'
+import HighchartsReact from 'highcharts-react-official'
+import HighchartsMore from 'highcharts/highcharts-more';
 
 
-
+HighchartsMore(Highcharts);
 if (typeof Highcharts === 'object') {
-  HighchartsExporting(Highcharts)
+    HighchartsExporting(Highcharts)
 }
-
 
 
 
@@ -85,7 +79,7 @@ export function TimeSeries({ tsArray, sourceId }: ChartProps) {
               headerFormat: `<span style="color:${markerColor}">●</span> <span style="font-size: 0.8em"> {series.name}</span><br/>.`, // Use the markerColor
               
             },
-          }, false, false);
+          }, true, false);
 
           chart.addSeries({
             id: ts.tag + "_err",

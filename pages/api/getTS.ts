@@ -7,7 +7,7 @@ export default async function handler(req:NextApiRequest , res:NextApiResponse) 
     try {
       console.log(req.query)
       const {runid,sourceId,tags} = req.query;
-      const safeSourceId = sourceId !== undefined ? BigInt(sourceId) :  ;
+      const safeSourceId = sourceId !== undefined ? BigInt(sourceId) : 0 ;
 
       const data = await getTS(Number(runid),BigInt(safeSourceId),String(tags));
       res.status(200).json(data);
