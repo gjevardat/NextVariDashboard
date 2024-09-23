@@ -3,7 +3,7 @@
 import React, { useRef, useEffect } from 'react';
 import * as Highcharts from 'highcharts';
 import { HighchartsReact } from 'highcharts-react-official';
-import useSWR from 'swr'
+
 
 
 import HC_more from 'highcharts/highcharts-more' //module
@@ -18,7 +18,7 @@ if (typeof Highcharts === 'object') {
   HighchartsExporting(Highcharts)
 }
 
-let options: Highcharts.Options = {};
+
 
 
 interface Ts {
@@ -30,7 +30,7 @@ interface Ts {
 
 interface ChartProps {
   tsArray: Ts[];
-  sourceId: number;
+  sourceId: BigInt;
 }
 
 export function TimeSeries({ tsArray, sourceId }: ChartProps) {
@@ -109,13 +109,16 @@ export function TimeSeries({ tsArray, sourceId }: ChartProps) {
     accessibility: {
       enabled: false,
     },
-    //height: '50%',
+    legend: {
+      enabled: false // Disable the legend
+    },
     chart: {
       type: 'scatter',
       zooming: {
         type: 'xy',
       },
       animation: false,
+      
     },
     xAxis: {
       type: 'linear',

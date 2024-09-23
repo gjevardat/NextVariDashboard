@@ -7,7 +7,7 @@ export interface run {
 }
 
 export interface source {
-    sourceid: number,
+    sourceid: BigInt,
 }
 
 export interface ts {

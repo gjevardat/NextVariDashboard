@@ -18,7 +18,7 @@ export default function Page() {
     const [availableRuns,setAvailableRuns] = useState<run[] >( []);
     const [availableTags,setAvailableTags] = useState<timeseriestag[] >([]);
     const [selectedRun, setSelectedRun] = useState<run>();
-    const [selectedSource, setSelectedSource] = useState<number>();
+    const [selectedSource, setSelectedSource] = useState<BigInt>(BigInt(0));
     const [selectedTags, setSelectedTags] = useState<string[]>(['ExtremeErrorCleaningMagnitudeDependent_FOV_G','ExtremeErrorCleaningMagnitudeDependent_FOV_BP','ExtremeErrorCleaningMagnitudeDependent_FOV_RP']);
     const [loadedTs, setLoadedTs] = useState<ts[]>([]);
 
@@ -26,12 +26,12 @@ export default function Page() {
 
     
 
-    async function fetchTimeSeries(run: run, source: number, tag: string) {
+    async function fetchTimeSeries(run: run, source: BigInt, tag: string) {
 
         const response = await fetch(`/api/getTS?runid=${run.runid}&sourceId=${source}&tags=${tag}`);
         const dataresponse = await response.json();
 
-        console.log("fetchTimeSeries call from page.tsx", dataresponse);
+        console.log("fetchTimeSeries call from page.tsx", source, dataresponse);
         if (Array.isArray(dataresponse) && dataresponse.length > 0) {
             console.log("data response from ts loading: ", dataresponse[0].sourceid);
 
@@ -74,7 +74,7 @@ export default function Page() {
     useEffect(() => {
 
         
-            setLoadedTs( (prevTs) => {return []});
+        setLoadedTs( (prevTs) => {return []});
         console.log("tag   run or source change change, reloading  ts")
         
         if (selectedRun && selectedTags && selectedTags.length > 0 && selectedSource) {
@@ -124,7 +124,7 @@ export default function Page() {
                 <SourceResultId run={selectedRun} onSourceSelect={setSelectedSource} setSelectedRun={setSelectedRun} />
             </div>
             <div className="grid-item">
-                <TimeSeries sourceId={Number(selectedSource)} tsArray={loadedTs} />
+                <TimeSeries tsArray={loadedTs} sourceId={BigInt(selectedSource)}/>
             </div>
         </div>
     )

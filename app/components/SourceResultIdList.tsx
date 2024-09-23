@@ -1,7 +1,5 @@
-'use client';
-
 import React, { useEffect, useState } from 'react';
-import useSWR from 'swr';
+
 import { DataGrid, GridColDef, GridRowSelectionModel, GridToolbarContainer } from '@mui/x-data-grid';
 import { IconButton, TextField } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -126,6 +124,7 @@ export function SourceResultId({ run , onSourceSelect}: {  run: run; onSourceSel
                 setRowSelectionModel(newRowSelectionModel);
                 onSourceSelect(newRowSelectionModel);
             }}
+            
             rowSelectionModel={rowSelectionModel}
             rows={rows}
             

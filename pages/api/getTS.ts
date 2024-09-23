@@ -7,7 +7,9 @@ export default async function handler(req:NextApiRequest , res:NextApiResponse) 
     try {
       console.log(req.query)
       const {runid,sourceId,tags} = req.query;
-      const data = await getTS(Number(runid),Number(sourceId),String(tags));
+      const safeSourceId = sourceId !== undefined ? BigInt(sourceId) :  ;
+
+      const data = await getTS(Number(runid),BigInt(safeSourceId),String(tags));
       res.status(200).json(data);
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch data' });
