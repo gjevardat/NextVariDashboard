@@ -8,7 +8,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
 
-import { run } from '@/app/types';
+import { run, source } from '@/app/types';
 
 interface EditToolbarProps {
     setRows: (newRows: (oldRows: any[]) => any[]) => void;
@@ -61,7 +61,7 @@ function EditToolbar(props: EditToolbarProps) {
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export function SourceResultId({ onSourceSelect, run , setSelectedRun}: { onSourceSelect: (source: any) => void; run: run | undefined , setSelectedRun : (run :run) => void }) {
+export function SourceResultId({ run , onSourceSelect}: {  run: run; onSourceSelect: (source: any) => void  }) {
     const pageSize = 100;
     
     const columns: GridColDef[] = [
@@ -82,13 +82,14 @@ export function SourceResultId({ onSourceSelect, run , setSelectedRun}: { onSour
     const [rowCount, setRowCount] = useState<number>(run?.size || 0); // Manage row count state
     const [isServerPagination, setIsServerPagination] = useState(true); // Add a state to toggle between server and client pagination
 
-    const { data, error, isLoading } = useSWR(
-         `/api/getSourceResultId?runid=${run?.runid}&offset=${paginationModel.page * paginationModel.pageSize}&size=${paginationModel.pageSize}` ,
-        fetcher
-    );
+    
+   
 
-    useEffect(() => {
-        
+    async function fetchSourceResultIds(run: run) {
+
+        const response = await fetch( `/api/getSourceResultId?runid=${run?.runid}&offset=${paginationModel.page * paginationModel.pageSize}&size=${paginationModel.pageSize}`);
+        const data : source[]= await response.json();
+
         if (data && data.length>0) {
             const elementsWithId = data.map((element: any) => ({
                 ...element,
@@ -96,8 +97,14 @@ export function SourceResultId({ onSourceSelect, run , setSelectedRun}: { onSour
             }));
             setRows(elementsWithId);
             setRowCount(run?.size || elementsWithId.length); // Set row count from server or data size
-        }
-    }, [data, run]);
+        }   
+    }
+
+
+    useEffect(() => { 
+        if(run != undefined)
+            fetchSourceResultIds(run);
+    }, [run]);
 
     const resetPagination = () => {
         setPaginationModel({
@@ -110,8 +117,7 @@ export function SourceResultId({ onSourceSelect, run , setSelectedRun}: { onSour
         setRowCount(count); // Update row count based on the new rows added
     };
 
-    if (error) return <div>Failed to load</div>;
-    if (!data && isLoading && isServerPagination) return <div>Loading...</div>;
+    
 
     return (
 
@@ -125,7 +131,7 @@ export function SourceResultId({ onSourceSelect, run , setSelectedRun}: { onSour
             
             columns={columns}
             rowCount={rowCount} // Dynamically set the row count
-            loading={isLoading}
+            
             density="compact"
             rowHeight={25}
             

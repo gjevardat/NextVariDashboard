@@ -8,13 +8,13 @@ import TextField from '@mui/material/TextField';
 
 import { run } from '@/app/types';
 
-export default function AutoCompleteRuns({runs, onRunSelect }: {runs:run[]; onRunSelect: (run: any) => void }) {
+export default function AutoCompleteRuns({runs, onRunSelect }: {runs:run[];  onRunSelect: (run: any) => void }) {
 
 
 
     const [open, setOpen] = React.useState(false);
     const [value, setValue] = React.useState<run>();
-    const [options, setOptions] = React.useState<readonly run[]>([]);
+    
     const loading = false;// open &&     options && options.length === 0;
 
     

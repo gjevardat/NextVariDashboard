@@ -2,7 +2,7 @@
 
 import React from 'react';
 import AutoCompleteRuns from '@/app/components/AutoCompleteRuns';
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { SourceResultId } from '@/app/components/SourceResultIdList';
 import { TimeSeries } from '@/app/components/TimeSeriesChart';
 import Operators from '@/app/components/Operators'
@@ -17,12 +17,14 @@ export default function Page() {
     
     const [availableRuns,setAvailableRuns] = useState<run[] >( []);
     const [availableTags,setAvailableTags] = useState<timeseriestag[] >([]);
-    
     const [selectedRun, setSelectedRun] = useState<run>();
     const [selectedSource, setSelectedSource] = useState<number>();
-    const [selectedTags, setSelectedTags] = useState<string[]>(['ExtremeErrorCleaningMagnitudeDependent_FOV_G']);
+    const [selectedTags, setSelectedTags] = useState<string[]>(['ExtremeErrorCleaningMagnitudeDependent_FOV_G','ExtremeErrorCleaningMagnitudeDependent_FOV_BP','ExtremeErrorCleaningMagnitudeDependent_FOV_RP']);
     const [loadedTs, setLoadedTs] = useState<ts[]>([]);
 
+    const isInitialRender = useRef(true); 
+
+    
 
     async function fetchTimeSeries(run: run, source: number, tag: string) {
 
@@ -68,10 +70,11 @@ export default function Page() {
 
         fetchRuns(); 
     }, []); // Empty dependency array means it runs once when the component mounts
-
+   
     useEffect(() => {
 
-        setLoadedTs( (prevTs) => {return []});
+        
+            setLoadedTs( (prevTs) => {return []});
         console.log("tag   run or source change change, reloading  ts")
         
         if (selectedRun && selectedTags && selectedTags.length > 0 && selectedSource) {
@@ -90,7 +93,7 @@ export default function Page() {
                 console.log("Ts to fetch " + selectedSource + ":" + tag + " for run " + selectedRun)
                 fetchTimeSeries(selectedRun, selectedSource, tag);
             });
-        }
+        }        
     }, [selectedTags, selectedRun, selectedSource]); // Any change in one of these states will trigger the useEffect function
 
     useEffect(()=>{
@@ -112,7 +115,7 @@ export default function Page() {
 
         <div className="grid-container">
             <div className="grid-item itemtop">
-                <AutoCompleteRuns runs={availableRuns} onRunSelect={setSelectedRun} />
+                <AutoCompleteRuns runs={availableRuns} onRunSelect={setSelectedRun}  />
             </div>
             <div className="grid-item itemtop">
                 <Operators availableTags={availableTags} selectedTags={selectedTags} onTagSelect={setSelectedTags} />
