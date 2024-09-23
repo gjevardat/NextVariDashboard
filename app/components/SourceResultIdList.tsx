@@ -58,6 +58,34 @@ function EditToolbar(props: EditToolbarProps) {
 }
 
 
+// Component for rendering input in header
+function HeaderWithInput({ label }) {
+    const [inputValue, setInputValue] = useState(label);
+  
+  
+
+      const inputLabelProps = {
+        shrink: true,
+        style: { display: 'none' }
+      };
+       
+    return (
+      <TextField
+     
+        label={label}
+        fullWidth 
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+        size="small"
+        variant="standard"
+        InputProps={{
+            disableUnderline: true, // Disable the underline
+            style: { fontSize: '14px' }, // Customize font style
+          }}
+      />
+    );
+  }
+
 export function SourceResultId({ run , onSourceSelect}: {  run: run|undefined; onSourceSelect: (source: source) => void  }) {
     const pageSize = 100;
     
@@ -65,7 +93,8 @@ export function SourceResultId({ run , onSourceSelect}: {  run: run|undefined; o
         {
             field: 'sourceid',
             headerName: 'Source id',
-            flex: 1,          // Let it expand to fill available space
+            flex: 1,//      expand to fill available space
+            renderHeader: () => <HeaderWithInput label=" sourceid1, sourceid2, ..." />
         }
     ];
 
@@ -134,7 +163,6 @@ export function SourceResultId({ run , onSourceSelect}: {  run: run|undefined; o
             density="compact"
             rowHeight={25}
             
-            //pageSizeOptions={[10, 25, 50, 100]}
             paginationModel={paginationModel}
             paginationMode={isServerPagination ? 'server' : 'client'} // Switch pagination mode
             onPaginationModelChange={(page) => {
@@ -144,23 +172,24 @@ export function SourceResultId({ run , onSourceSelect}: {  run: run|undefined; o
                 }
             }}
             processRowUpdate={(newRow) => newRow}
-            /* slots={{
-                columnHeaders: () => null,
-                toolbar: EditToolbar as any,
+            slots={{
+              //  columnHeaders: () => null,
+               // toolbar: EditToolbar as any,
             }}
             slotProps={{
                 toolbar: { setRows,  resetPagination, resetRowCount, setIsServerPagination },
-            }} */
+            }}
+            hideFooterPagination={false}
+            hideFooterSelectedRowCount={true}
             sx={{
                 '.MuiDataGrid-columnSeparator': {
                     display: 'none',
                 },
-                '.MuiDataGrid-selectedRowCount':{display: 'none'}
+                //'.MuiDataGrid-selectedRowCount':{display: 'none'},
+                
             }}
 
-
         />
-
-
     );
 }
+
