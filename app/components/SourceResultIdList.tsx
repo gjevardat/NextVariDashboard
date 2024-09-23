@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { DataGrid, GridColDef, GridRowSelectionModel, GridToolbarContainer } from '@mui/x-data-grid';
-import { IconButton, TextField } from '@mui/material';
+import { IconButton, Input, TextField } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
@@ -58,33 +58,7 @@ function EditToolbar(props: EditToolbarProps) {
 }
 
 
-// Component for rendering input in header
-function HeaderWithInput({ label }) {
-    const [inputValue, setInputValue] = useState(label);
-  
-  
 
-      const inputLabelProps = {
-        shrink: true,
-        style: { display: 'none' }
-      };
-       
-    return (
-      <TextField
-     
-        label={label}
-        fullWidth 
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        size="small"
-        variant="standard"
-        InputProps={{
-            disableUnderline: true, // Disable the underline
-            style: { fontSize: '14px' }, // Customize font style
-          }}
-      />
-    );
-  }
 
 export function SourceResultId({ run , onSourceSelect}: {  run: run|undefined; onSourceSelect: (source: source) => void  }) {
     const pageSize = 100;
@@ -94,7 +68,7 @@ export function SourceResultId({ run , onSourceSelect}: {  run: run|undefined; o
             field: 'sourceid',
             headerName: 'Source id',
             flex: 1,//      expand to fill available space
-            renderHeader: () => <HeaderWithInput label=" sourceid1, sourceid2, ..." />
+           // renderHeader: () => <HeaderWithInput label=" sourceid1, sourceid2, ..." />
         }
     ];
 
@@ -151,7 +125,9 @@ export function SourceResultId({ run , onSourceSelect}: {  run: run|undefined; o
             onRowSelectionModelChange={(newRowSelectionModel) => {
                 setRowSelectionModel(newRowSelectionModel);
                 console.log("selected row : ",newRowSelectionModel[0])
-                onSourceSelect({sourceid:BigInt(newRowSelectionModel[0])});
+                if(newRowSelectionModel[0]!=undefined){
+                    onSourceSelect({sourceid:BigInt(newRowSelectionModel[0])});
+                }
             }}
             
             rowSelectionModel={rowSelectionModel}
@@ -173,8 +149,8 @@ export function SourceResultId({ run , onSourceSelect}: {  run: run|undefined; o
             }}
             processRowUpdate={(newRow) => newRow}
             slots={{
-              //  columnHeaders: () => null,
-               // toolbar: EditToolbar as any,
+               //columnHeaders: () => <HeaderWithInput label="sourceid1, sourceid2, ..." />
+                toolbar: EditToolbar as any,
             }}
             slotProps={{
                 toolbar: { setRows,  resetPagination, resetRowCount, setIsServerPagination },
