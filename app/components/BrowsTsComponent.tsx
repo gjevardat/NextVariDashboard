@@ -11,8 +11,8 @@ import { getRuns } from '@/app/components/getruns';
 
 
 interface BrowseTsProps {
-   runid: number,
-   sourceid: bigint,
+   runid: number|null,
+   sourceid: bigint|null,
     tags: string[]
 }
 
