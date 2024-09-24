@@ -80,6 +80,10 @@ export default function BrowseTsComponent({runid, sourceid, tags}: BrowseTsProps
         if(runid && availableRuns.length>0){
             setSelectedRun((prevRun)=>(availableRuns.filter((run)=>run.runid==runid)[0]));
         }
+        if(runid && sourceid && availableRuns.length>0){
+            setSelectedRun((prevRun)=>(availableRuns.filter((run)=>run.runid==runid)[0]));
+            setSelectedSource({sourceid:sourceid})
+        }
     },[availableRuns])
     useEffect(() => {
         

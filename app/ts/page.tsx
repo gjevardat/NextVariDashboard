@@ -1,6 +1,6 @@
 'use client'
 
-import BrowseTsComponent from "../components/BrowsTsComponent"
+import BrowseTsComponent from "@/app/components/BrowsTsComponent"
 
 
 export default function page()  {
