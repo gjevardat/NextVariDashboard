@@ -10,21 +10,25 @@ import { run, ts , timeseriestag, source} from '@/app/types';
 import { getRuns } from '@/app/components/getruns';
 
 
+interface BrowseTsProps {
+   runid: number,
+   sourceid: bigint,
+    tags: string[]
+}
 
-
-export default function Page() {
+export default function BrowseTsComponent({runid, sourceid, tags}: BrowseTsProps) {
     
     
     const [availableRuns,setAvailableRuns] = useState<run[] >( []);
     const [availableTags,setAvailableTags] = useState<timeseriestag[] >([]);
-    const [selectedRun, setSelectedRun] = useState<run>();
+    const [selectedRun, setSelectedRun] = useState<run | null>(null);
     const [selectedSource, setSelectedSource] = useState<source>();
-    const [selectedTags, setSelectedTags] = useState<string[]>(['ExtremeErrorCleaningMagnitudeDependent_FOV_G','ExtremeErrorCleaningMagnitudeDependent_FOV_BP','ExtremeErrorCleaningMagnitudeDependent_FOV_RP']);
+    const [selectedTags, setSelectedTags] = useState<string[]>(tags);
     const [loadedTs, setLoadedTs] = useState<ts[]>([]);
 
-    const isInitialRender = useRef(true); 
-
     
+
+ 
 
     async function fetchTimeSeries(run: run, source: bigint, tag: string) {
 
@@ -69,9 +73,16 @@ export default function Page() {
         }
 
         fetchRuns(); 
+       
     }, []); // Empty dependency array means it runs once when the component mounts
    
+    useEffect(()=>{
+        if(runid && availableRuns.length>0){
+            setSelectedRun((prevRun)=>(availableRuns.filter((run)=>run.runid==runid)[0]));
+        }
+    },[availableRuns])
     useEffect(() => {
+        
         setLoadedTs( (prevTs) => {return []});
         if (selectedRun && selectedTags && selectedTags.length > 0 && selectedSource) {
 
@@ -92,7 +103,7 @@ export default function Page() {
 
         <div className="grid-container">
             <div className="grid-item itemtop">
-                <AutoCompleteRuns runs={availableRuns} onRunSelect={setSelectedRun}  />
+                <AutoCompleteRuns runs={availableRuns} selectedRun={selectedRun} onRunSelect={setSelectedRun}  />
             </div>
             <div className="grid-item itemtop">
                 <Operators availableTags={availableTags} selectedTags={selectedTags} onTagSelect={setSelectedTags} />
