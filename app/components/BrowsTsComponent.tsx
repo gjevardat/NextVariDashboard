@@ -102,6 +102,12 @@ export default function BrowseTsComponent({runid, sourceid, tags}: BrowseTsProps
         }        
     }, [selectedTags, selectedRun, selectedSource]); // Any change in one of these states will trigger the useEffect function
 
+    useEffect(()=>{
+        if(selectedRun !== null){
+            
+            fetchRunTimeSeriesTag(selectedRun);
+        }
+    },[selectedRun]);
   
     return (
 

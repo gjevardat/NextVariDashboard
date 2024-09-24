@@ -60,7 +60,7 @@ function EditToolbar(props: EditToolbarProps) {
 
 
 
-export function SourceResultId({ run , onSourceSelect}: {  run: run|undefined; onSourceSelect: (source: source) => void  }) {
+export function SourceResultId({ run , onSourceSelect}: {  run: run|null; onSourceSelect: (source: source) => void  }) {
     const pageSize = 100;
     
     const columns: GridColDef[] = [
@@ -147,6 +147,7 @@ export function SourceResultId({ run , onSourceSelect}: {  run: run|undefined; o
                     onSourceSelect(undefined); // Should take first row
                 }
             }}
+            pageSizeOptions={[]}
             processRowUpdate={(newRow) => newRow}
             slots={{
                //columnHeaders: () => <HeaderWithInput label="sourceid1, sourceid2, ..." />
