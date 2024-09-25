@@ -61,7 +61,7 @@ function EditToolbar(props: EditToolbarProps) {
 
 
 export function SourceResultId({ run , onSourceSelect}: {  run: run|null; onSourceSelect: (source: source) => void  }) {
-    const pageSize = 100;
+    const pageSize = 50;
     
     const columns: GridColDef[] = [
         {

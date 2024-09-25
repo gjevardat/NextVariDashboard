@@ -75,8 +75,9 @@ export function TimeSeries({ tsArray, sourceId }: ChartProps) {
             },
             tooltip: {
               followPointer: false,
-              pointFormat: '[{point.x:.4f}, {point.y:.4f}]',
-              headerFormat: `<span style="color:${markerColor}">●</span> <span style="font-size: 0.8em"> {series.name}</span><br/>.`, // Use the markerColor
+              
+              pointFormat: '<b>Obstimes:</b>{point.x:.4f}<br/><b>Value:</b>{point.y:.4f}',
+              headerFormat: `<span style="color:${markerColor}">●</span> <span> <b>{series.name}</b></span><br/>`,
               
             },
           }, true, false);
@@ -116,6 +117,9 @@ export function TimeSeries({ tsArray, sourceId }: ChartProps) {
     },
     xAxis: {
       type: 'linear',
+      title:{
+        text: 'Observation times'
+      } 
     },
     plotOptions: {
       series: {
