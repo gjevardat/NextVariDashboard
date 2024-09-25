@@ -2,7 +2,7 @@
 
 import React from 'react';
 import AutoCompleteRuns from '@/app/components/AutoCompleteRuns';
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { SourceResultId } from '@/app/components/SourceResultIdList';
 import { TimeSeries } from '@/app/components/TimeSeriesChart';
 import Operators from '@/app/components/Operators'
