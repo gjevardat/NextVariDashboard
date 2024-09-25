@@ -59,7 +59,7 @@ function EditToolbar(props: EditToolbarProps) {
 
 
 
-export function SourceResultId({ run , onSourceSelect}: {  run: run|null; onSourceSelect: (source: source) => void  }) {
+export function SourceResultId({ run , onSourceSelect}: {  run: run|null; onSourceSelect: (source: source) => void }) {
     const pageSize = 50;
     
     const columns: GridColDef[] = [
@@ -143,7 +143,7 @@ export function SourceResultId({ run , onSourceSelect}: {  run: run|null; onSour
             onPaginationModelChange={(page) => {
                 setPaginationModel(page);
                 if (isServerPagination) {
-                    onSourceSelect(undefined); // Should take first row
+                   // onSourceSelect(null); // Should take first row
                 }
             }}
             pageSizeOptions={[]}

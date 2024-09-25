@@ -7,7 +7,7 @@ import TextField from '@mui/material/TextField';
 import { run } from '@/app/types';
 import { styled } from "@mui/material/styles";
 
-export default function AutoCompleteRuns({runs, selectedRun, onRunSelect }: {runs:run[];  selectedRun:run| null, onRunSelect: (run: any) => void }) {
+export default function AutoCompleteRuns({runs, selectedRun, onRunSelect }: {runs:run[];  selectedRun:run| null; onRunSelect: (run: any) => void }) {
 
 
 

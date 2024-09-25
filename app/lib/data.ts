@@ -5,7 +5,7 @@ import pool from '@/app/lib/db'
 
 
 
-export async function getTS(runid:Number, sourceId: BigInt, tags: string) {
+export async function getTS(runid:Number, sourceId: bigint, tags: string) {
 
 
   try {

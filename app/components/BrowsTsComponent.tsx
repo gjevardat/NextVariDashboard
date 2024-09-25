@@ -119,7 +119,7 @@ export default function BrowseTsComponent({runid, sourceid, tags}: BrowseTsProps
                 <Operators availableTags={availableTags} selectedTags={selectedTags} onTagSelect={setSelectedTags} />
             </div>
             <div className="grid-item itemsourcebrowser">
-                <SourceResultId run={selectedRun} onSourceSelect={setSelectedSource} setSelectedRun={setSelectedRun} />
+                <SourceResultId run={selectedRun} onSourceSelect={setSelectedSource} />
             </div>
             <div className="grid-item">
                 <TimeSeries tsArray={loadedTs} sourceId={selectedSource?selectedSource.sourceid:undefined}/>
