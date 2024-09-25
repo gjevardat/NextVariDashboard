@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { DataGrid, GridColDef, GridRowSelectionModel, GridToolbarContainer } from '@mui/x-data-grid';
-import { IconButton, Input, TextField } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import RefreshIcon from '@mui/icons-material/Refresh';
+import {  TextField } from '@mui/material';
 
 
 import { run, source } from '@/app/types';
@@ -25,10 +23,11 @@ function EditToolbar(props: EditToolbarProps) {
     };
 
     const handleReplaceRows = () => {
-        const ids = inputValue.split(',').map((id) => id.trim()).filter((id) => id);
+        const ids = inputValue.split(/\s+|,|;/).map((id) => id.trim()).filter((id) => id);
+        console.log("splitted ids",ids);
         const newRows = ids.map((id, index) => ({
-            id: Number(id),
-            sourceid: Number(id),
+            id: BigInt(id),
+            sourceid: BigInt(id),
         }));
         
         setRows(() => newRows); // Replace the old rows with the new rows

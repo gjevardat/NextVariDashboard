@@ -80,7 +80,7 @@ export function TimeSeries({ tsArray, sourceId }: ChartProps) {
               headerFormat: `<span style="color:${markerColor}">●</span> <span> <b>{series.name}</b></span><br/>`,
               
             },
-          }, true, false);
+          }, false, false);
 
           chart.addSeries({
             id: ts.tag + "_err",
@@ -120,6 +120,9 @@ export function TimeSeries({ tsArray, sourceId }: ChartProps) {
       title:{
         text: 'Observation times'
       } 
+    },
+    yAxis: {
+      reversed: true
     },
     plotOptions: {
       series: {
