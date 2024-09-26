@@ -1,11 +1,10 @@
-'use client'
 
 import React, { useState } from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import { timeseriestag } from '@/app/types';
 
-import useSWR from 'swr'
+
 
 
 

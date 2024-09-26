@@ -1,4 +1,4 @@
-'use client'
+
 
 import React from 'react';
 import AutoCompleteRuns from '@/app/components/AutoCompleteRuns';
@@ -30,9 +30,9 @@ export default function BrowseTsComponent({runid, sourceid, tags}: BrowseTsProps
 
  
 
-    async function fetchTimeSeries(run: run, source: bigint, tag: string) {
+    async function fetchTimeSeries(run: run, source: bigint, tag: string[]) {
 
-        const response = await fetch(`/api/getTS?runid=${run.runid}&sourceId=${source}&tags=${tag}`);
+        const response = await fetch(`/api/getTS?runid=${run.runid}&sourceId=${source}&tags=${selectedTags}`);
         const dataresponse = await response.json();
 
         
@@ -40,16 +40,8 @@ export default function BrowseTsComponent({runid, sourceid, tags}: BrowseTsProps
         
 
             // Directly update the loadedTs state with fetched data
-            setLoadedTs((prevLoadedTs) => [
-                ...prevLoadedTs,
-                {
-                    tag: tag,
-                    sourceid: dataresponse[0].sourceid,
-                    obstimes: dataresponse[0].obstimes,
-                    vals: dataresponse[0].val,
-                    errs: dataresponse[0].valerr,
-                },
-            ]);
+            console.log("data response is ",dataresponse);
+            setLoadedTs(dataresponse);
         }
     }
 
@@ -96,9 +88,9 @@ export default function BrowseTsComponent({runid, sourceid, tags}: BrowseTsProps
                 return; // No new tags to load
             }
 
-            tagsToLoad.forEach((tag) => {
-                fetchTimeSeries(selectedRun, selectedSource.sourceid, tag);
-            });
+            
+                fetchTimeSeries(selectedRun, selectedSource.sourceid, selectedTags);
+            
         }        
     }, [selectedTags, selectedRun, selectedSource]); // Any change in one of these states will trigger the useEffect function
 
@@ -122,7 +114,7 @@ export default function BrowseTsComponent({runid, sourceid, tags}: BrowseTsProps
                 <SourceResultId run={selectedRun} onSourceSelect={setSelectedSource} />
             </div>
             <div className="grid-item">
-                <TimeSeries tsArray={loadedTs} sourceId={selectedSource?selectedSource.sourceid:undefined}/>
+                <TimeSeries sourceid={selectedSource?selectedSource.sourceid:null} tsArray={loadedTs} />
             </div>
         </div>
     )

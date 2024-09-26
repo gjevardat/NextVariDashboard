@@ -6,6 +6,7 @@ import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import HighchartsExporting from 'highcharts/modules/exporting'
 import HighchartsMore from 'highcharts/highcharts-more';
+import { ts } from '../types';
 
 
 if (typeof Highcharts === 'object') {
@@ -13,23 +14,16 @@ if (typeof Highcharts === 'object') {
   HighchartsMore(Highcharts);
 }
 
-
-
-interface Ts {
-  tag: string;
-  obstimes: number[];
-  vals: number[];
-  errs: number[];
+interface TimeSeriesProps {
+  sourceid: bigint|null,
+  tsArray: ts[];
 }
 
-interface ChartProps {
-  tsArray: Ts[];
-  sourceId: bigint|undefined;
-}
 
-export function TimeSeries({ tsArray, sourceId }: ChartProps) {
+export function TimeSeries( {tsArray,sourceid} : TimeSeriesProps) {
   const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
 
+  console.log(tsArray);
   useEffect(() => {
 
     
@@ -39,7 +33,7 @@ export function TimeSeries({ tsArray, sourceId }: ChartProps) {
 
 
     // Check if necessary to ensure the chart is properly initialized before adding series
-    if (chart && tsArray) {
+    if (chart && tsArray && tsArray.length>0) {
 
 
       //clean existing series
@@ -51,9 +45,9 @@ export function TimeSeries({ tsArray, sourceId }: ChartProps) {
 
     
 
-          console.log('ts tag:' + ts.tag + " " + ts.vals)
-          const valueSeries: [number, number][] = ts.obstimes.map((value, index) => [value, ts.vals[index]]);
-          const errorSeries: [number, number, number][] = ts.obstimes.map((value, index) => [value, ts.vals[index] - ts.errs[index], ts.vals[index] + ts.errs[index]]);
+          console.log('ts tag:' + ts.tag + " " + ts.val)
+          const valueSeries: [number, number][] = ts.obstimes.map((value, index) => [value, ts.val[index]]);
+          const errorSeries: [number, number, number][] = ts.obstimes.map((value, index) => [value, ts.val[index] - ts.valerr[index], ts.val[index] + ts.valerr[index]]);
 
           console.log('ts tag:' + ts.tag)
           let markerColor = 'grey'; // Default color
@@ -118,11 +112,14 @@ export function TimeSeries({ tsArray, sourceId }: ChartProps) {
     xAxis: {
       type: 'linear',
       title:{
-        text: 'Observation times'
+        text: 'Time (BJD in TCB-2455197.5)'
       } 
     },
     yAxis: {
-      reversed: true
+      reversed: true,
+      title:{
+        text: 'Magnitude'
+      }
     },
     plotOptions: {
       series: {
@@ -133,7 +130,7 @@ export function TimeSeries({ tsArray, sourceId }: ChartProps) {
       },
     },
     title: {
-      text: sourceId?String(sourceId):"No source selected",
+      text: sourceid?tsArray.length>0?sourceid:"Loading...":"No source selected",
     },
     
   };

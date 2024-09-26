@@ -11,11 +11,12 @@ export interface source {
 }
 
 export interface ts {
+    sourceid: bigint,
     tag: string,
-    sourceid: number,
     obstimes: number[],
-    vals: number[],
-    errs: number[]
+    val: number[],
+    valerr: number[],
+    transit:bigint[]
 }
 
 export interface timeseriestag {
