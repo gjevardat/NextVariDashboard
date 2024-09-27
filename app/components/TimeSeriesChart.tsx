@@ -6,7 +6,7 @@ import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import HighchartsExporting from 'highcharts/modules/exporting'
 import HighchartsMore from 'highcharts/highcharts-more';
-import { ts } from '../types';
+import { source, ts } from '../types';
 
 
 if (typeof Highcharts === 'object') {
@@ -15,15 +15,14 @@ if (typeof Highcharts === 'object') {
 }
 
 interface TimeSeriesProps {
-  sourceid: bigint|null,
-  tsArray: ts[];
+  source:source|null;
 }
 
 
-export function TimeSeries( {tsArray,sourceid} : TimeSeriesProps) {
+export function TimeSeries( {source} : TimeSeriesProps) {
   const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
 
-  console.log(tsArray);
+  
   useEffect(() => {
 
     
@@ -33,7 +32,7 @@ export function TimeSeries( {tsArray,sourceid} : TimeSeriesProps) {
 
 
     // Check if necessary to ensure the chart is properly initialized before adding series
-    if (chart && tsArray && tsArray.length>0) {
+    if (chart && source && source.timeseries && source.timeseries.length>0) {
 
 
       //clean existing series
@@ -41,22 +40,22 @@ export function TimeSeries( {tsArray,sourceid} : TimeSeriesProps) {
         chart.series[0].remove();
     }
 
-      tsArray.forEach((ts) => {
+    source.timeseries.forEach((ts) => {
 
     
 
-          console.log('ts tag:' + ts.tag + " " + ts.val)
+          
           const valueSeries: [number, number][] = ts.obstimes.map((value, index) => [value, ts.val[index]]);
           const errorSeries: [number, number, number][] = ts.obstimes.map((value, index) => [value, ts.val[index] - ts.valerr[index], ts.val[index] + ts.valerr[index]]);
 
-          console.log('ts tag:' + ts.tag)
+          
           let markerColor = 'grey'; // Default color
           if (ts.tag.includes("FOV_RP")) {
             markerColor = 'red';
           } else if (ts.tag.includes("FOV_BP")) {
             markerColor = 'blue';
           }
-          console.log("Marker color  "+ markerColor)
+          
           chart.addSeries({
             type: 'scatter',
             id: ts.tag,
@@ -91,7 +90,7 @@ export function TimeSeries( {tsArray,sourceid} : TimeSeriesProps) {
 
 
     }
-  }, [tsArray]);
+  }, [source]);
 
   const options = {
     
@@ -130,8 +129,16 @@ export function TimeSeries( {tsArray,sourceid} : TimeSeriesProps) {
       },
     },
     title: {
-      text: sourceid?tsArray.length>0?sourceid:"Loading...":"No source selected",
+      text: ''
     },
+    exporting:{
+      enabled:true,
+      buttons:{
+        contextButton:{
+          verticalAlign:'bottom'
+        }
+      }
+    }
     
   };
 

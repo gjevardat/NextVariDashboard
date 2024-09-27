@@ -146,7 +146,7 @@ export function SourceResultId({ run , onSourceSelect}: {  run: run|null; onSour
                    // onSourceSelect(null); // Should take first row
                 }
             }}
-            pageSizeOptions={[]}
+            pageSizeOptions={[50]}
             processRowUpdate={(newRow) => newRow}
             slots={{
                //columnHeaders: () => <HeaderWithInput label="sourceid1, sourceid2, ..." />

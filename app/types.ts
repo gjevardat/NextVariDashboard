@@ -7,7 +7,8 @@ export interface run {
 }
 
 export interface source {
-    sourceid: bigint,
+    sourceid: bigint, 
+    timeseries: ts[]
 }
 
 export interface ts {

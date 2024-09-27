@@ -6,23 +6,21 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 export default async function handler(req:NextApiRequest , res:NextApiResponse) {
     try {
       console.log(req.query)
-      const {runid,sourceId,tags} = req.query;
       
       
-      
-      const safeSourceId = Array.isArray(sourceId) 
-  ? (sourceId.length > 0 ? BigInt(parseInt(sourceId[0], 10)) : null) // Handle arrays
-  : (sourceId ? BigInt(parseInt(sourceId, 10)) : null);  // Handle string or null
+      const runid = req.query.runid;
+      const sourceids = req.query.sourceids as string[]
+      const sourceids_bigint:bigint[] = sourceids.map(s => BigInt(s));
+      const tags = req.query.tags as string[];
 
-      if(safeSourceId!==null){
-
-        const data = await getTS(Number(runid),safeSourceId,tags);
+      if(sourceids_bigint!==null && tags!==null){
+        const data = await getTS(Number(runid),sourceids_bigint,tags);
         res.status(200).json(data);
       }
       else{
         res.status(500).json({ error: `cannot parse sourceid : $sourceId`});
       }
     } catch (error) {
-      res.status(500).json({ error: 'Failed to fetch data' });
+      res.status(500).json({ error: `${error}` });
     }
   }
