@@ -4,13 +4,11 @@ import React from 'react';
 import AutoCompleteRuns from '@/app/components/AutoCompleteRuns';
 import { useState, useEffect } from 'react'
 import { SourceResultId } from '@/app/components/SourceResultIdList';
-import { TimeSeries } from '@/app/components/TimeSeriesChart';
 import Operators from '@/app/components/Operators'
 import { run, ts, timeseriestag, source } from '@/app/types';
 import { getRuns } from '@/app/components/getruns';
+import { SourceGrid } from './SourceGridComponent';
 
-import useEmblaCarousel from 'embla-carousel-react';
-import EmblaCarousel from './EmblaCarousel';
 
 
 
@@ -19,58 +17,6 @@ interface BrowseTsProps {
     sourceid: bigint | null,
     tags: string[]
 }
-
-interface GridProps{
-    sources: source[]|null,
-    columns: number,
-    rows:number
-}
-
-
-const OPTIONS = {}
-const SLIDE_COUNT = 5
-const SLIDES = Array.from(Array(SLIDE_COUNT).keys())
-
-
-const SourceGrid: React.FC<GridProps > = ({ sources, columns, rows }) => {
-    return (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: `repeat(${columns}, 1fr)`, // Fixed columns
-            gridTemplateRows: `repeat(${rows}, 1fr)`,       // Fixed rows
-            gap: '10px', // Space between grid items
-            height: '100%', // Ensure grid does not expand indefinitely
-            overflow: 'hidden', // Prevent overflow issues
-          }}
-        >
-          { sources && Array.from({ length: sources.length }, (_, index) => {
-            const source = sources[index];
-    
-            // If no source exists at this index, return an empty cell
-            if (!source) {
-              return <div key={index} style={{ border: '1px solid #ccc' }} />;
-            }
-    
-            // Render the source component
-            return (
-              <div
-                key={source.sourceid}
-                style={{
-                  border: '1px solid #ccc', // Example styling, adjust as needed
-                  padding: '10px',
-                  height: '100%',
-                  overflow: 'hidden'
-                }}
-              >
-                <h4><b>{source.sourceid}</b></h4>
-                <TimeSeries source={sources?source:null} />
-              </div>
-            );
-          })}
-        </div>
-      );
-    };
 
 export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsProps) {
 
@@ -83,8 +29,11 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
     const [loadedTs, setLoadedTs] = useState<ts[]>([]);
     const [loadedSources, setLoadedSources] = useState<source[]>([]);
     const [gridSize, setGridSize] = useState<{ x: number, y: number }>({ x: 1, y: 1 })
-    const [pageSize, setPageSize] = useState<number>(4);
+    const [pageSize, setPageSize] = useState<number>(8);
     const [pageIndex, setPageIndex] = useState<number>(0);
+    
+    const prefetchPages = 10;
+    const [loadedPages, setLoadedPages] = useState<number>(0);
     
 
 
@@ -167,8 +116,11 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
                 return; // No new tags to load
             }
 
+            //while(loadedPages<10){
 
-            fetchTimeSeries(selectedRun, selectedTags, pageIndex, pageSize);
+                fetchTimeSeries(selectedRun, selectedTags, pageIndex, pageSize);
+                setLoadedPages(loadedPages+1)
+            //  }
 
         }
     }, [selectedTags, selectedRun, pageIndex]); // Any change in one of these states will trigger the useEffect function
@@ -193,24 +145,16 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
                 <SourceResultId run={selectedRun} onSourceSelect={setSelectedSource} />
             </div>
             <div className="grid-item">
-                {/* <TimeSeries sourceid={selectedSource ? selectedSource.sourceid : null} tsArray={loadedTs} /> */}
-                {/* <div>
-                <TimeSeries source={loadedSources&&loadedSources.length>0?loadedSources[0]:null} />
+               
+                <SourceGrid 
+                    run = {selectedRun}
+                    sources={loadedSources&&loadedSources.length>0?loadedSources:null} 
+                    columns={4} 
+                    rows={2} pageIndex={pageIndex}
+                    setPageIndex={setPageIndex}
                     
-                </div>
-                <div>
-
-
-                <TimeSeries source={loadedSources&&loadedSources.length>0?loadedSources[1]:null} />
-                </div> */}
-               {/*  <SourceGrid sources={loadedSources&&loadedSources.length>0?loadedSources:null} columns={2} rows={2}/> */}
-               {selectedRun &&  
-               <EmblaCarousel 
-                    slides={Array.from(Array(10).keys())} 
-                    options={OPTIONS} 
-                    children={<SourceGrid sources={loadedSources&&loadedSources.length>0?loadedSources:null} columns={2} rows={2}/>}
-                    setPageIndex={setPageIndex}/>  
-               }
+                /> 
+              
             </div>
         </div>
     )

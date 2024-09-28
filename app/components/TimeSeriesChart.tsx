@@ -135,7 +135,8 @@ export function TimeSeries( {source} : TimeSeriesProps) {
       enabled:true,
       buttons:{
         contextButton:{
-          verticalAlign:'bottom'
+          verticalAlign:'bottom',
+          align:'left'
         }
       }
     }
