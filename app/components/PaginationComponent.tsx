@@ -9,9 +9,7 @@ interface PaginationProps {
 
 const Pagination: React.FC<PaginationProps> = ({ currentPageIndex, totalItems, itemsPerPage, onPageChange }) => {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startItem = currentPageIndex * itemsPerPage + 1;
-  const endItem = Math.min(totalItems, (currentPageIndex + 1) * itemsPerPage);
-
+  
   const handlePrev = () => {
     if (currentPageIndex > 0) {
       onPageChange(currentPageIndex - 1);
@@ -33,7 +31,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPageIndex, totalItems, i
 
       {/* Page Info */}
       <span>
-        {startItem}-{endItem} of {totalItems}
+        {currentPageIndex} of {totalPages}
       </span>
 
       {/* Next Button */}
