@@ -13,6 +13,9 @@ interface GridProps {
 }
 
 export const SourceGrid: React.FC<GridProps> = ({ run, sources, columns, rows, pageIndex, setPageIndex }) => {
+
+
+  
   return (
     <div
       style={{
@@ -36,7 +39,7 @@ export const SourceGrid: React.FC<GridProps> = ({ run, sources, columns, rows, p
         // Render the source component
         return (
           <div
-            key={source.sourceid}
+            key={index}
             style={{
               border: '1px solid #ccc', // Example styling, adjust as needed
               padding: '10px',
@@ -50,6 +53,51 @@ export const SourceGrid: React.FC<GridProps> = ({ run, sources, columns, rows, p
         );
       })}
 
+ 
+{/*  <div
+            key={1}
+            style={{
+              border: '1px solid #ccc', // Example styling, adjust as needed
+              padding: '10px',
+              height: '100%',
+              overflow: 'hidden'
+            }}
+          >
+      {sources && <TimeSeries source={sources[0]} />}
+</div>
+<div
+            key={2}
+            style={{
+              border: '1px solid #ccc', // Example styling, adjust as needed
+              padding: '10px',
+              height: '100%',
+              overflow: 'hidden'
+            }}
+          >
+      {sources && <TimeSeries source={sources[1]} />}
+</div>
+<div
+            key={3}
+            style={{
+              border: '1px solid #ccc', // Example styling, adjust as needed
+              padding: '10px',
+              height: '100%',
+              overflow: 'hidden'
+            }}
+          >
+      {sources && <TimeSeries source={sources[2]} />}
+</div>
+<div
+            key={4}
+            style={{
+              border: '1px solid #ccc', // Example styling, adjust as needed
+              padding: '10px',
+              height: '100%',
+              overflow: 'hidden'
+            }}
+          >
+      {sources && <TimeSeries source={sources[3]} />}
+</div> */}
        {sources && <Pagination
 
         currentPageIndex={pageIndex}
