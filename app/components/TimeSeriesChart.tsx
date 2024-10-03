@@ -5,13 +5,18 @@ import React, { useRef, useEffect, useState } from 'react';
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import HighchartsExporting from 'highcharts/modules/exporting'
+import HighchartsExportData from 'highcharts/modules/export-data';
+import HighChartsOfflineExporting from "highcharts/modules/offline-exporting";
+
 import HighchartsMore from 'highcharts/highcharts-more';
 import { source, ts } from '../types';
 
 
 if (typeof Highcharts === 'object') {
   HighchartsExporting(Highcharts)
+  HighchartsExportData(Highcharts)
   HighchartsMore(Highcharts);
+  HighChartsOfflineExporting(Highcharts)
 }
 
 interface TimeSeriesProps {
@@ -21,9 +26,9 @@ interface TimeSeriesProps {
 export function TimeSeries({ source }: TimeSeriesProps) {
   const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
 
-  const[chart, setChart] = useState<Highcharts.Chart>()
-  
-  const [chartOptions, setChartOptions] = useState<Highcharts.Options>({
+  const [chart, setChart] = useState<Highcharts.Chart>()
+
+  const [chartOptions] = useState<Highcharts.Options>({
     accessibility: { enabled: false },
     legend: { enabled: false },
     chart: {
@@ -46,6 +51,7 @@ export function TimeSeries({ source }: TimeSeriesProps) {
     title: { text: '' },
     exporting: {
       enabled: true,
+      
       buttons: {
         contextButton: {
           verticalAlign: 'bottom',
@@ -54,25 +60,35 @@ export function TimeSeries({ source }: TimeSeriesProps) {
       },
     },
   });
-  
-  useEffect( () => {
-    if(chartComponentRef && chartComponentRef.current)
-    setChart(chartComponentRef.current.chart);
-  },[])
-  
+
+  useEffect(() => {
+    if (chartComponentRef && chartComponentRef.current)
+      setChart(chartComponentRef.current.chart);
+  }, [])
+
 
   useEffect(() => {
 
-    
-    
-    
-    
     if (chart && source && source.timeseries && source.timeseries.length > 0) {
-      console.log("chart instance:", chart.index)
+      let existingSeries = chart.series
+        .filter((s) => s.options && s.options.id && !s.options.id.endsWith('_err'))
+        .map((s) => s.options.id)
+      let requestedSeries = source.timeseries.map((ts) => ts.tag);
 
-      console.log("Existing series IDs: ", chart.series.map((s) => s.options.id)); // Log existing series IDs
 
+      // Series to remove from the chart
+      let seriesToRemove = existingSeries.filter(tag => !requestedSeries.includes(tag));
+      // Series to add to the chart
+      let seriesToAdd = requestedSeries.filter(tag => !existingSeries.includes(tag));
+      // Series to update in the chart
+      let seriesToUpdate = existingSeries.filter(tag => requestedSeries.includes(tag));
 
+      seriesToRemove.forEach((ts) => {
+        let valueSeriesChart = chart.get(ts) as Highcharts.Series | undefined;
+        let errorSeriesChart = chart.get(ts+"_err") as Highcharts.Series | undefined;
+        valueSeriesChart?.remove();
+        errorSeriesChart?.remove();
+      })
 
       source.timeseries.forEach((ts) => {
         const valueSeries: [number, number][] = ts.obstimes.map((value, index) => [value, ts.val[index]]);
@@ -91,13 +107,12 @@ export function TimeSeries({ source }: TimeSeriesProps) {
 
         let valueSeriesChart = chart.get(valueSeriesId) as Highcharts.Series | undefined;
         let errorSeriesChart = chart.get(errorSeriesId) as Highcharts.Series | undefined;
-        console.log(`Series with ID ${valueSeriesId} found: `, valueSeriesChart !== undefined); // Log if series is found
-
-        if (valueSeriesChart) {
-          // Update the existing series using setData
-          console.log("Update chart only")
+        
+        //udpate chart. important to avoid full redraw that takes long with bigger grids of plots.
+        if (valueSeriesChart && seriesToUpdate.includes(valueSeriesId)) {
           valueSeriesChart.setData(valueSeries, false);
-        } else {
+        }
+        else {
           // Add new series if it doesn't exist
           chart.addSeries({
             type: 'scatter',
@@ -118,12 +133,10 @@ export function TimeSeries({ source }: TimeSeriesProps) {
           }, false);
         }
 
-        if (errorSeriesChart) {
-          // Update the error series using setData
+        if (errorSeriesChart && seriesToUpdate.includes(valueSeriesId)) {
           errorSeriesChart.setData(errorSeries, false);
-          
-        } else {
-          // Add new error series if it doesn't exist
+        }
+        else {
           chart.addSeries({
             id: errorSeriesId,
             type: 'errorbar',
@@ -133,16 +146,16 @@ export function TimeSeries({ source }: TimeSeriesProps) {
           }, false);
         }
       });
-      
+      chart.redraw();
     }
-  }, [source,chart]);
+  }, [source]);
 
 
   return (
     <div style={{ height: "100%" }}>
       <HighchartsReact
         highcharts={Highcharts}
-        options={chartOptions }
+        options={chartOptions}
         ref={chartComponentRef}
         containerProps={{ style: { height: "100%" } }}
       />

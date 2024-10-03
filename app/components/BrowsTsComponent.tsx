@@ -33,8 +33,8 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
     const [selectedSource, setSelectedSource] = useState<source>();
     const [selectedTags, setSelectedTags] = useState<string[]>(tags);
     
-    const [loadedSources, setLoadedSources] = useState<source[]>([]);
-    const [gridSize, setGridSize] = useState<{ x: number, y: number }>({ x: 4, y: 4 })
+    
+    const [gridSize, setGridSize] = useState<{ x: number, y: number }>({ x: 1, y:1 })
     const [pageSize, setPageSize] = useState<number>(gridSize.x*gridSize.y);
     const [pageIndex, setPageIndex] = useState<number>(0);
     
@@ -117,9 +117,15 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
         }
     }, [pageIndex]);
 
+    useEffect(() => {
+        if (selectedRun !== null) {
+            fetchTimeSeries(selectedRun, selectedTags, pageIndex, pageSize);
+        }
+    }, [selectedTags]);
+
 
     useEffect(() => {
-
+        selectedRun && fetchRunTimeSeriesTag(selectedRun)
         if (selectedRun && pages[pageIndex])  {
             return
         }
