@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { run, source } from "../types";
 import Pagination from "./PaginationComponent";
 import { TimeSeries } from "./TimeSeriesChart";
@@ -13,7 +14,22 @@ interface GridProps {
 }
 
 export const SourceGrid: React.FC<GridProps> = ({ run, sources, columns, rows, pageIndex, setPageIndex }) => {
+  
+  
+  
+    
+  
+
+  if(!sources){
+    return (<div>Loading...</div>)
+  }
+
+ 
+
+  
   return (
+    
+    
     <div
       style={{
         display: 'grid',
@@ -55,7 +71,7 @@ export const SourceGrid: React.FC<GridProps> = ({ run, sources, columns, rows, p
         currentPageIndex={pageIndex}
         totalItems={run?run.size:0}
         itemsPerPage={columns*rows}
-        onPageChange={setPageIndex} // Update page state
+        onPageChange={setPageIndex} 
       />}
 
     </div>
