@@ -8,8 +8,6 @@ import Operators from '@/app/components/Operators'
 import { run, ts, timeseriestag, source } from '@/app/types';
 import { getRuns } from '@/app/components/getruns';
 import { SourceGrid } from './SourceGridComponent';
-import { sources } from 'next/dist/compiled/webpack/webpack';
-import FancyGridSizeSelector from './GridSelector';
 import GridSizeSelector from './GridSelector';
 
 
@@ -149,12 +147,8 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
     useEffect(() => {
         if (runid !== null && availableRuns.length > 0) {
             setSelectedRun((prevRun) => (availableRuns.filter((run) => run.runid == runid)[0]));
-            //   console.log("set run to one given in params ")
         }
-        /*  if (runid && sourceid && availableRuns.length > 0) {
-             setSelectedRun((prevRun) => (availableRuns.filter((run) => run.runid == runid)[0]));
-             setSelectedSource({ sourceid: sourceid, timeseries: [] })
-         } */
+       
     }, [availableRuns])
 
     useEffect(() => {
@@ -209,7 +203,8 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
 
     useEffect(() => {
         // Prevent hook on initial component mounting
-        if (selectedRun) {
+        setPages([])
+        if (selectedRun ) {
             selectedRun && fetchTimeSeries(selectedRun, selectedTags, pageIndex, pageSize);
         }
     }, [gridSize]);
@@ -217,7 +212,7 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
 
     return (
 
-        <div className="grid-container" onKeyDown={handleKeyDown}>
+        <div className="grid-container">
             <div className="grid-header">
                 <AutoCompleteRuns runs={availableRuns} selectedRun={selectedRun} onRunSelect={setSelectedRun} />
                 <Operators availableTags={availableTags} selectedTags={selectedTags} onTagSelect={setSelectedTags} />
