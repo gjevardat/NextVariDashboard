@@ -20,13 +20,13 @@ export const SourceGrid: React.FC<GridProps> = ({ run, sources, columns, rows, p
     
   
 
-  if(!sources){
+   if(run && !sources){
     return (<div>Loading...</div>)
-  }
+  } 
 
  
 
-  
+  //console.log(`grid of size ${columns}x${rows} will show ${sources.length} sources of page with index ${pageIndex}`)
   return (
     
     
@@ -67,50 +67,6 @@ export const SourceGrid: React.FC<GridProps> = ({ run, sources, columns, rows, p
       })}
 
  
-{/*  <div
-            key={1}
-            style={{
-              border: '1px solid #ccc', // Example styling, adjust as needed
-              padding: '10px',
-              height: '100%',
-              overflow: 'hidden'
-            }}
-          >
-      {sources && <TimeSeries source={sources[0]} />}
-</div>
-<div
-            key={2}
-            style={{
-              border: '1px solid #ccc', // Example styling, adjust as needed
-              padding: '10px',
-              height: '100%',
-              overflow: 'hidden'
-            }}
-          >
-      {sources && <TimeSeries source={sources[1]} />}
-</div>
-<div
-            key={3}
-            style={{
-              border: '1px solid #ccc', // Example styling, adjust as needed
-              padding: '10px',
-              height: '100%',
-              overflow: 'hidden'
-            }}
-          >
-      {sources && <TimeSeries source={sources[2]} />}
-</div>
-<div
-            key={4}
-            style={{
-              border: '1px solid #ccc', // Example styling, adjust as needed
-              padding: '10px',
-              height: '100%',
-              overflow: 'hidden'
-            }}
-          >
-      {sources && <TimeSeries source={sources[3]} />}
-</div> */}
        {sources && <Pagination
 
         currentPageIndex={pageIndex}

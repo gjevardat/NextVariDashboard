@@ -37,6 +37,7 @@ export default function AutoCompleteRuns({runs, selectedRun, onRunSelect }: {run
                 }
                 }
                 size='small'
+                
               /*   open={open}
                 onOpen={() => {
                     setOpen(true);
@@ -53,14 +54,16 @@ export default function AutoCompleteRuns({runs, selectedRun, onRunSelect }: {run
                 renderInput={(params) => (
                     <TextField
                     {...params}
+                
                    label="Search run"
-                   sx={{
+                   style={{ minWidth: '600px' }}
+                 /*   sx={{
                     '& .MuiInputBase-root': { 
                       fontSize: '12px',
                       
                     },
                     
-                  }} 
+                  }}  */
                     />
                 )}
                

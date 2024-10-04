@@ -11,7 +11,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const runid = req.query.runid;
     const pageSize = req.query.pageSize;
     const pageIndex = req.query.pageIndex;
-    const tags = req.query.tags as string[];
+    
+    const tags = Array.isArray(req.query.tags)?req.query.tags as string[]:Array(req.query.tags);
 
 
     const data = await getTS_Page(Number(runid), tags, Number(pageIndex),Number(pageSize));

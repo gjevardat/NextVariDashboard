@@ -31,11 +31,11 @@ const Pagination: React.FC<PaginationProps> = ({ currentPageIndex, totalItems, i
 
       {/* Page Info */}
       <span>
-        {currentPageIndex} of {totalPages}
+        {currentPageIndex+1} of {totalPages}
       </span>
 
       {/* Next Button */}
-      <button onClick={handleNext} disabled={currentPageIndex === totalPages - 1}>
+      <button onClick={handleNext} disabled={currentPageIndex === totalPages }>
         Next
       </button>
     </div>

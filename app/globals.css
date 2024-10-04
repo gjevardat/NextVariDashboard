@@ -25,23 +25,39 @@ body {
     text-wrap: balance;
   }
 
-  /* Set the grid layout */
+ 
   .grid-container {
-
     display: grid;
-    /* 1st column 20% width, 2nd column auto (remaining space) */
-    grid-template-columns: 20vw 1fr;
-    /* 1st row auto height (children heigh), 2nd row auto (remaining space) */
-    grid-template-rows: auto 1fr;
-    height: 100vh;
-    /* Full height of viewport */
+    grid-template-columns: 1fr;  /* 1 column layout */
+    grid-template-rows: auto 1fr; /* 2 rows: first row adjusts to content, second row takes remaining space */
+    height: 100vh; /* Full viewport height */
     width: 100vw;
     /* Full width of viewport */
 
     gap: 2px;
     /* Optional gap between grid items */
-  }
+}
+
+.grid-header {
+ /* grid-row: 1 / 2;  /* This is the header row */
+  display: flex;
   
+  flex-wrap: wrap;  /* Wrap if components overflow horizontally */
+  
+  padding: 10px;
+  /*  background-color: #f0f0f0; /* Optional: background for the header */
+}
+
+.grid-content {
+  /*grid-row: 2 / 3;  /* This is the content row */
+  padding: 10px;
+  overflow: auto; /* Allow scrolling if the content overflows */
+  align-items: center;
+  text-align: center;
+}
+
+
+
   .grid-item {
     display: block;
     justify-content: center;
@@ -64,6 +80,12 @@ body {
   .itemtop {
     padding: 10px;
     }
+
+
+  .itemfullwidth{
+    grid-column: span 2; /* Span across both columns */
+
+  }
     /*
 
   .item3 {

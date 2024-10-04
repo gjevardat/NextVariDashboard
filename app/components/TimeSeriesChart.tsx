@@ -61,6 +61,7 @@ export function TimeSeries({ source }: TimeSeriesProps) {
     },
   });
 
+  
   useEffect(() => {
     if (chartComponentRef && chartComponentRef.current)
       setChart(chartComponentRef.current.chart);
@@ -70,12 +71,15 @@ export function TimeSeries({ source }: TimeSeriesProps) {
   useEffect(() => {
 
     if (chart && source && source.timeseries && source.timeseries.length > 0) {
+
+
+
       let existingSeries = chart.series
         .filter((s) => s.options && s.options.id && !s.options.id.endsWith('_err'))
         .map((s) => s.options.id)
       let requestedSeries = source.timeseries.map((ts) => ts.tag);
 
-
+ 
       // Series to remove from the chart
       let seriesToRemove = existingSeries.filter(tag => !requestedSeries.includes(tag));
       // Series to add to the chart
@@ -148,7 +152,7 @@ export function TimeSeries({ source }: TimeSeriesProps) {
       });
       chart.redraw();
     }
-  }, [source]);
+  }, [chart,source]);
 
 
   return (
