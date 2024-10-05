@@ -1,17 +1,16 @@
 
+'use client'
 
 import React, { useCallback } from 'react';
 import AutoCompleteRuns from '@/app/components/AutoCompleteRuns';
 import { useState, useEffect } from 'react'
-import { SourceResultId } from '@/app/components/SourceResultIdList';
 import Operators from '@/app/components/Operators'
 import { run, ts, timeseriestag, source } from '@/app/types';
 import { getRuns } from '@/app/components/getruns';
 import { SourceGrid } from './SourceGridComponent';
 import GridSizeSelector from './GridSelector';
 import { TextField } from '@mui/material';
-
-
+import usePersistentState from './UsePersistentState'
 
 
 interface BrowseTsProps {
@@ -25,11 +24,6 @@ interface page {
     sources: source[]
 }
 
-interface pages{
-    currentPage:number,
-    pages: page[]
-}
-
 export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsProps) {
 
 
@@ -40,12 +34,13 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
     const [selectedTags, setSelectedTags] = useState<string[]>(tags);
     const [inputValue, setInputValue] = React.useState('');
 
+    const [gridSize, setGridSize] = usePersistentState<{ x: number, y: number }>('gridSize',{ x: 2, y: 2 });
 
-    const [gridSize, setGridSize] = useState<{ x: number, y: number }>({ x: 2, y: 2 })
-    const pageSize = gridSize.x * gridSize.y;
+    //const [gridSize, setGridSize] = useState<{ x: number, y: number }>({ x: 2, y: 2 })
+    
     const [pageIndex, setPageIndex] = useState<number>(0);
 
-    const prefetchPages = 10;
+    const   prefetchPages= 2;
     const [pages, setPages] = useState<page[]>([]);
 
     const handleKeyDown = useCallback(
@@ -53,7 +48,7 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
             if (selectedRun) {
                 if (event.key === 'PageDown') {
                     const totalPages = Math.ceil(selectedRun.size / (gridSize.x * gridSize.y));
-                    setPageIndex((prevPageIndex) => (prevPageIndex < (totalPages -1)? prevPageIndex + 1 : prevPageIndex));
+                    setPageIndex((prevPageIndex) => (prevPageIndex < (totalPages - 1) ? prevPageIndex + 1 : prevPageIndex));
                 } else if (event.key === 'PageUp') {
                     setPageIndex((prevPageIndex) => (prevPageIndex > 0 ? prevPageIndex - 1 : 0));
                 }
@@ -62,7 +57,7 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
         [selectedRun, gridSize, pageIndex] // Add state variables as dependencies 
     );
 
-    
+
     async function fetchTimeSeries(run: run, tag: string[], reqPageIndex: number, pageSize: number) {
 
         const response = await fetch(`/api/getTSPage?runid=${run.runid}&pageIndex=${reqPageIndex}&pageSize=${pageSize}&tags=${selectedTags.join('&tags=')}`);
@@ -127,6 +122,9 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
     }, [pages]); // This will trigger whenever pages updates
 
     useEffect(() => {
+
+
+        
         // attach the event listener
         document.addEventListener('keydown', handleKeyDown);
 
@@ -157,16 +155,16 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
         if (runid !== null && availableRuns.length > 0) {
             setSelectedRun((prevRun) => (availableRuns.filter((run) => run.runid == runid)[0]));
         }
-       
+
     }, [availableRuns])
 
     useEffect(() => {
-      prefetch();
+        prefetch();
     }, [pageIndex]);
 
     useEffect(() => {
         if (selectedRun !== null) {
-            fetchTimeSeries(selectedRun, selectedTags, pageIndex, pageSize);
+            fetchTimeSeries(selectedRun, selectedTags, pageIndex, gridSize.x*gridSize.y);
         }
     }, [selectedTags]);
 
@@ -187,37 +185,37 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
         // Prevent hook on initial component mounting
 
         setPages([]) // avoid strange page refresh effects. Should be better handled
-        //compute  new index
-        //let newPageIndex = pageIndex*pageSize 
+        
         setPageIndex(0)
         prefetch();
     }, [gridSize]);
 
-    async function prefetch(){
+    async function prefetch() {
         if (selectedRun && pageIndex != null) {
+            let pageSize = gridSize.x*gridSize.y;
             // Prefetch next and previous pages
             const totalPages = Math.ceil(selectedRun.size / pageSize); // Assuming total number of pages can be calculated
-    
+
             // Prefetch previous 10 pages (ensure no negative index)
             for (let i = Math.max(pageIndex - prefetchPages, 0); i <= pageIndex; i++) {
                 if (pages[i] == null || pages[i].sources.length != pageSize) {
                     fetchTimeSeries(selectedRun, selectedTags, i, pageSize);
                 }
             }
-    
+
             // Prefetch next 10 pages (ensure it doesn't exceed total pages)
             for (let i = pageIndex + 1; i <= Math.min(pageIndex + prefetchPages, totalPages - 1); i++) {
                 if (pages[i] == null || pages[i].sources.length != pageSize) {
                     fetchTimeSeries(selectedRun, selectedTags, i, pageSize);
                 }
             }
-    
+
             // Handle the current page: use cached / prefetched pages
-           /*  if (pages[pageIndex] != null && pages[pageIndex].sources.length === pageSize) {
-                return;
-            } else {
-                fetchTimeSeries(selectedRun, selectedTags, pageIndex, pageSize);
-            } */
+            /*  if (pages[pageIndex] != null && pages[pageIndex].sources.length === pageSize) {
+                 return;
+             } else {
+                 fetchTimeSeries(selectedRun, selectedTags, pageIndex, pageSize);
+             } */
         }
     }
     return (
@@ -225,13 +223,15 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
         <div className="grid-container">
             <div className="grid-header">
                 <AutoCompleteRuns runs={availableRuns} selectedRun={selectedRun} onRunSelect={setSelectedRun} />
-                <TextField
-                label="sourceid1,sourceid2,..."
-                value={inputValue}
-                onChange={handleInputChange}
-                size="small"
-               
-            />       
+                <div>
+                    <TextField
+                        label="sourceids"
+                        value={inputValue}
+                        onChange={handleInputChange}
+                        size="small"
+
+                    />
+                </div>
                 <Operators availableTags={availableTags} selectedTags={selectedTags} onTagSelect={setSelectedTags} />
                 <GridSizeSelector gridSize={gridSize} setGridSize={setGridSize} />
             </div>
@@ -250,12 +250,5 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
         </div>
     )
 }
-
-
-
-
-
-
-
 
 
