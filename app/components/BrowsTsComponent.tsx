@@ -1,6 +1,4 @@
 
-'use client'
-
 import React, { useCallback } from 'react';
 import AutoCompleteRuns from '@/app/components/AutoCompleteRuns';
 import { useState, useEffect } from 'react'
@@ -34,14 +32,15 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
     const [selectedTags, setSelectedTags] = useState<string[]>(tags);
     const [inputValue, setInputValue] = React.useState('');
 
-    const [gridSize, setGridSize] = usePersistentState<{ x: number, y: number }>('gridSize',{ x: 2, y: 2 });
+    //const [gridSize, setGridSize] = usePersistentState<{ x: number, y: number }>('gridSize',{ x: 2, y: 2 });
 
-    //const [gridSize, setGridSize] = useState<{ x: number, y: number }>({ x: 2, y: 2 })
-    
+    const [gridSize, setGridSize] = useState<{ x: number, y: number }>({ x: 2, y: 2 })
+
     const [pageIndex, setPageIndex] = useState<number>(0);
 
-    const   prefetchPages= 2;
-    const [pages, setPages] = useState<page[]>([]);
+    const prefetchPages = 10;
+    //const// [pages, setPages] = useState<page[]>([]);
+    const [sources, setSources] = useState<source[]>([])
 
     const handleKeyDown = useCallback(
         (event: KeyboardEvent) => {
@@ -58,49 +57,78 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
     );
 
 
-    async function fetchTimeSeries(run: run, tag: string[], reqPageIndex: number, pageSize: number) {
-
-        const response = await fetch(`/api/getTSPage?runid=${run.runid}&pageIndex=${reqPageIndex}&pageSize=${pageSize}&tags=${selectedTags.join('&tags=')}`);
-        const dataresponse = await response.json();
-
-
-        if (Array.isArray(dataresponse) && dataresponse.length > 0) {
-
-            const groupBySourceId = (array: ts[]) => {
-                return array.reduce((sources: source[], current: ts, index: number) => {
-
-                    // Find an existing source with the same sourceid
-                    let source = sources.find(s => s.sourceid === current.sourceid);
-
-                    // If not found, create a new source object
-                    if (!source) {
-                        source = { sourceid: current.sourceid, timeseries: [] };
-                        sources.push(source); // Add the new source to the list
-                    }
-
-                    // Add the current time series to the source's timeseries array
-                    source.timeseries = [...source.timeseries, current];
-
-                    return sources;
-                }, []);
-            };
-
-            const sources = (groupBySourceId(dataresponse));
-            const currentPage = { pageIndex: reqPageIndex, sources: sources };
-            // console.log(`loaded page ${reqPageIndex}`)
-            // important to use function form of setPages to ensure we work on latest snapshot of the state pages
-            setPages((prevPages) => {
-                // Create a copy of the previous pages array
-                const updatedPages = [...prevPages];
-
-                // Set the current page at the required index
-                updatedPages[reqPageIndex] = currentPage;
-
-                // Return the updated pages array
-                return updatedPages;
+    async function fetchTimeSeriesBatch(run: run, tags: string[], pageIndexes: number[], pageSize: number) {
+        try {
+            // Create an array of promises for each pageIndex
+            const fetchPromises = pageIndexes.map((reqPageIndex) => {
+                return fetch(`/api/getTSPage?runid=${run.runid}&pageIndex=${reqPageIndex}&pageSize=${pageSize}&tags=${tags.join('&tags=')}`)
+                    .then(response => response.json())
+                    .then(dataresponse => ({ pageIndex: reqPageIndex, dataresponse }));
             });
+
+            // Wait for all fetches to complete
+            const results = await Promise.all(fetchPromises);
+            console.log(results)
+            // Now process each result to group by sourceId and update the state
+            const groupedPages = results.map(({ pageIndex, dataresponse }) => {
+                if (Array.isArray(dataresponse) && dataresponse.length > 0) {
+                    const groupBySourceId = (array: ts[]) => {
+                        return array.reduce((sources: source[], current: ts) => {
+                            // Find an existing source with the same sourceid
+                            let source = sources.find(s => BigInt(s.sourceid) === BigInt(current.sourceid));
+
+                            // If not found, create a new source object
+                            if (!source) {
+                                source = { sourceid: BigInt(current.sourceid), timeseries: [] };
+                                sources.push(source); // Add the new source to the list
+                            }
+
+                            // Add the current time series to the source's timeseries array
+                            source.timeseries = [...source.timeseries, current];
+
+                            return sources;
+                        }, []);
+                    };
+
+                    const sources = groupBySourceId(dataresponse);
+                    return { pageIndex, sources };
+                }
+                return null;
+            }).filter(page => page !== null); // Remove any null pages (where dataresponse was empty)
+
+            /*  // Now, use functional setState to update the pages state
+             setPages((prevPages) => {
+                 const updatedPages = [...prevPages];
+     
+                 // Update each page in the correct index
+                 groupedPages.forEach(({ pageIndex, sources }) => {
+                     updatedPages[pageIndex] = { pageIndex, sources };
+                 });
+     
+               
+ 
+                 return updatedPages;
+             }); */
+
+            setSources((prevSources) => {
+                const flattenedSources = groupedPages.flatMap((p) => p.sources);
+                const newSources = [...prevSources, ...flattenedSources];
+                const sortedUniqueSources = newSources
+                    .sort((a: source, b: source) => (BigInt(a.sourceid) < BigInt(b.sourceid) ? -1 : 1)) 
+                    .filter((source, index, arr) => {
+                        
+                        return index === 0 || source.sourceid !== arr[index - 1].sourceid;
+                    });
+                    console.log(sortedUniqueSources);
+                return sortedUniqueSources;
+            });
+
+
+        } catch (error) {
+            console.error('Error fetching time series data:', error);
         }
     }
+
 
     async function fetchRunTimeSeriesTag(run: run) {
         const response = await fetch(`/api/getTimeSeriesResultTypes?runid=${run.runid}`)
@@ -115,16 +143,11 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
 
     };
 
-    useEffect(() => {
-        if (selectedRun) {
-            //   console.log(`pages size is now ${pages.length}`);
-        }
-    }, [pages]); // This will trigger whenever pages updates
-
+   
     useEffect(() => {
 
 
-        
+
         // attach the event listener
         document.addEventListener('keydown', handleKeyDown);
 
@@ -164,12 +187,14 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
 
     useEffect(() => {
         if (selectedRun !== null) {
-            fetchTimeSeries(selectedRun, selectedTags, pageIndex, gridSize.x*gridSize.y);
+            fetchTimeSeriesBatch(selectedRun, selectedTags, [pageIndex], gridSize.x * gridSize.y);
         }
     }, [selectedTags]);
 
 
     useEffect(() => {
+        setSources([]) // avoid strange page refresh effects. Should be better handled
+
         // Prevent hook on initial component mounting
         if (selectedRun) {
             //console.log(`selected Run change ${selectedRun?.runid}`)
@@ -183,39 +208,38 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
 
     useEffect(() => {
         // Prevent hook on initial component mounting
-
-        setPages([]) // avoid strange page refresh effects. Should be better handled
-        
         setPageIndex(0)
-        prefetch();
     }, [gridSize]);
 
     async function prefetch() {
         if (selectedRun && pageIndex != null) {
-            let pageSize = gridSize.x*gridSize.y;
+            let pageSize = gridSize.x * gridSize.y;
             // Prefetch next and previous pages
             const totalPages = Math.ceil(selectedRun.size / pageSize); // Assuming total number of pages can be calculated
 
-            // Prefetch previous 10 pages (ensure no negative index)
+            let pagesToFetch: number[] = [];
+
+        /*     // Fetch pages from previous and current indices
             for (let i = Math.max(pageIndex - prefetchPages, 0); i <= pageIndex; i++) {
                 if (pages[i] == null || pages[i].sources.length != pageSize) {
-                    fetchTimeSeries(selectedRun, selectedTags, i, pageSize);
+                    pagesToFetch.push(i);
+                }
+            } */
+
+            // Prefetch next n=prefetchPages pages (ensure it doesn't exceed total pages)
+            for (let i = pageIndex ; i < Math.min(pageIndex + prefetchPages, totalPages); i++) {
+                
+                if (!sources[i*pageSize] &&  !sources[(i*pageSize)+pageSize-1]) {
+
+                    pagesToFetch.push(i);
                 }
             }
 
-            // Prefetch next 10 pages (ensure it doesn't exceed total pages)
-            for (let i = pageIndex + 1; i <= Math.min(pageIndex + prefetchPages, totalPages - 1); i++) {
-                if (pages[i] == null || pages[i].sources.length != pageSize) {
-                    fetchTimeSeries(selectedRun, selectedTags, i, pageSize);
-                }
+            // Call the batch fetching function with accumulated page indices
+            if (pagesToFetch.length > 0) {
+                console.log(`Will prefetch ${pagesToFetch}`)
+                fetchTimeSeriesBatch(selectedRun, selectedTags, pagesToFetch, pageSize);
             }
-
-            // Handle the current page: use cached / prefetched pages
-            /*  if (pages[pageIndex] != null && pages[pageIndex].sources.length === pageSize) {
-                 return;
-             } else {
-                 fetchTimeSeries(selectedRun, selectedTags, pageIndex, pageSize);
-             } */
         }
     }
     return (
@@ -240,7 +264,8 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
 
                 <SourceGrid
                     run={selectedRun}
-                    sources={pages && pages.length > 0 && pages[pageIndex] && pages[pageIndex].sources ? pages[pageIndex].sources : null}
+                    //sources={pages && pages.length > 0 && pages[pageIndex] && pages[pageIndex].sources ? pages[pageIndex].sources : null}
+                    sources={sources && sources.length > 0 ? sources.slice(pageIndex * gridSize.x * gridSize.y, (pageIndex + 1) * gridSize.x * gridSize.y) : null}
                     columns={gridSize.x}
                     rows={gridSize.y}
                     pageIndex={pageIndex}

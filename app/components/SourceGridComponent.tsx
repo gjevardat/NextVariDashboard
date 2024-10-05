@@ -61,7 +61,7 @@ export const SourceGrid: React.FC<GridProps> = ({ run, sources, columns, rows, p
               overflow: 'hidden'
             }}
           >
-            <h4><b>{source.sourceid}</b></h4>
+            <h4><b>{source.sourceid.toString()}</b></h4>
             <TimeSeries source={sources ? source : null} />
           </div>
         );
