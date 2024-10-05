@@ -51,7 +51,11 @@ export function TimeSeries({ source }: TimeSeriesProps) {
     title: { text: '' },
     exporting: {
       enabled: true,
-      
+      chartOptions: {
+        title: {
+          text: source?.sourceid.toString()
+        }
+      },
       buttons: {
         contextButton: {
           verticalAlign: 'bottom',

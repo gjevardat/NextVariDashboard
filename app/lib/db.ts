@@ -1,7 +1,7 @@
 
 import { Pool } from "pg";
 
-const conn = new Pool({
+const pool = new Pool({
   user:'jevardat_local',
   password: '!jevardat_local!',
   host: 'localhost',
@@ -11,4 +11,6 @@ const conn = new Pool({
 });
 
 
-export default conn ;
+
+
+export default pool ;

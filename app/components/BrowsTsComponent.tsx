@@ -9,6 +9,7 @@ import { run, ts, timeseriestag, source } from '@/app/types';
 import { getRuns } from '@/app/components/getruns';
 import { SourceGrid } from './SourceGridComponent';
 import GridSizeSelector from './GridSelector';
+import { TextField } from '@mui/material';
 
 
 
@@ -37,6 +38,7 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
     const [selectedRun, setSelectedRun] = useState<run | null>(null);
 
     const [selectedTags, setSelectedTags] = useState<string[]>(tags);
+    const [inputValue, setInputValue] = React.useState('');
 
 
     const [gridSize, setGridSize] = useState<{ x: number, y: number }>({ x: 2, y: 2 })
@@ -60,6 +62,7 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
         [selectedRun, gridSize, pageIndex] // Add state variables as dependencies 
     );
 
+    
     async function fetchTimeSeries(run: run, tag: string[], reqPageIndex: number, pageSize: number) {
 
         const response = await fetch(`/api/getTSPage?runid=${run.runid}&pageIndex=${reqPageIndex}&pageSize=${pageSize}&tags=${selectedTags.join('&tags=')}`);
@@ -110,6 +113,12 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
 
         setAvailableTags(dataresponse)
     }
+
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setInputValue(event.target.value);
+        const ids = inputValue.split(/\s+|,|;/).map((id) => id.trim()).filter((id) => id);
+
+    };
 
     useEffect(() => {
         if (selectedRun) {
@@ -204,6 +213,7 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
     useEffect(() => {
         // Prevent hook on initial component mounting
         setPages([])
+        
         if (selectedRun ) {
             selectedRun && fetchTimeSeries(selectedRun, selectedTags, pageIndex, pageSize);
         }
@@ -215,6 +225,13 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
         <div className="grid-container">
             <div className="grid-header">
                 <AutoCompleteRuns runs={availableRuns} selectedRun={selectedRun} onRunSelect={setSelectedRun} />
+                <TextField
+                label="sourceid1,sourceid2,..."
+                value={inputValue}
+                onChange={handleInputChange}
+                size="small"
+               
+            />       
                 <Operators availableTags={availableTags} selectedTags={selectedTags} onTagSelect={setSelectedTags} />
                 <GridSizeSelector gridSize={gridSize} setGridSize={setGridSize} />
             </div>

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { run, source } from "../types";
 import Pagination from "./PaginationComponent";
 import { TimeSeries } from "./TimeSeriesChart";
+import { CircularProgress, LinearProgress } from "@mui/material";
 
 interface GridProps {
   run : run|null,
@@ -21,7 +22,7 @@ export const SourceGrid: React.FC<GridProps> = ({ run, sources, columns, rows, p
   
 
    if(run && !sources){
-    return (<div>Loading...</div>)
+    return (<div><LinearProgress/></div>)
   } 
 
  

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Button, Menu, MenuItem, TextField, } from '@mui/material';
+import React from 'react';
+import {  TextField, } from '@mui/material';
 
 interface GridSizeProps {
   gridSize: {
