@@ -161,31 +161,7 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
     }, [availableRuns])
 
     useEffect(() => {
-        if (selectedRun && pageIndex != null) {
-            // Prefetch next and previous pages
-            const totalPages = Math.ceil(selectedRun.size / pageSize); // Assuming total number of pages can be calculated
-    
-            // Prefetch previous 10 pages (ensure no negative index)
-            for (let i = Math.max(pageIndex - prefetchPages, 0); i < pageIndex; i++) {
-                if (pages[i] == null || pages[i].sources.length != pageSize) {
-                    fetchTimeSeries(selectedRun, selectedTags, i, pageSize);
-                }
-            }
-    
-            // Prefetch next 10 pages (ensure it doesn't exceed total pages)
-            for (let i = pageIndex + 1; i <= Math.min(pageIndex + prefetchPages, totalPages - 1); i++) {
-                if (pages[i] == null || pages[i].sources.length != pageSize) {
-                    fetchTimeSeries(selectedRun, selectedTags, i, pageSize);
-                }
-            }
-    
-            // Handle the current page: use cached / prefetched pages
-            if (pages[pageIndex] != null && pages[pageIndex].sources.length === pageSize) {
-                return;
-            } else {
-                fetchTimeSeries(selectedRun, selectedTags, pageIndex, pageSize);
-            }
-        }
+      prefetch();
     }, [pageIndex]);
 
     useEffect(() => {
@@ -200,10 +176,7 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
         if (selectedRun) {
             //console.log(`selected Run change ${selectedRun?.runid}`)
             fetchRunTimeSeriesTag(selectedRun)
-            //basic prefetch
-            for (let i = 0; i <= prefetchPages; i++) {
-                fetchTimeSeries(selectedRun, selectedTags, i, pageSize);
-              }
+            prefetch();
         }
     }, [selectedRun]);
 
@@ -212,14 +185,41 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
 
     useEffect(() => {
         // Prevent hook on initial component mounting
-        setPages([])
-        
-        if (selectedRun ) {
-            selectedRun && fetchTimeSeries(selectedRun, selectedTags, pageIndex, pageSize);
-        }
+
+        setPages([]) // avoid strange page refresh effects. Should be better handled
+        //compute  new index
+        //let newPageIndex = pageIndex*pageSize 
+        setPageIndex(0)
+        prefetch();
     }, [gridSize]);
 
-
+    async function prefetch(){
+        if (selectedRun && pageIndex != null) {
+            // Prefetch next and previous pages
+            const totalPages = Math.ceil(selectedRun.size / pageSize); // Assuming total number of pages can be calculated
+    
+            // Prefetch previous 10 pages (ensure no negative index)
+            for (let i = Math.max(pageIndex - prefetchPages, 0); i <= pageIndex; i++) {
+                if (pages[i] == null || pages[i].sources.length != pageSize) {
+                    fetchTimeSeries(selectedRun, selectedTags, i, pageSize);
+                }
+            }
+    
+            // Prefetch next 10 pages (ensure it doesn't exceed total pages)
+            for (let i = pageIndex + 1; i <= Math.min(pageIndex + prefetchPages, totalPages - 1); i++) {
+                if (pages[i] == null || pages[i].sources.length != pageSize) {
+                    fetchTimeSeries(selectedRun, selectedTags, i, pageSize);
+                }
+            }
+    
+            // Handle the current page: use cached / prefetched pages
+           /*  if (pages[pageIndex] != null && pages[pageIndex].sources.length === pageSize) {
+                return;
+            } else {
+                fetchTimeSeries(selectedRun, selectedTags, pageIndex, pageSize);
+            } */
+        }
+    }
     return (
 
         <div className="grid-container">
