@@ -10,6 +10,7 @@ import GridSizeSelector from './GridSelector';
 import { TextField } from '@mui/material';
 import usePersistentState from './UsePersistentState'
 import Pagination from './PaginationComponent';
+import SourceSelectionComponent from './SourceSelectionComponent';
 
 
 interface BrowseTsProps {
@@ -261,7 +262,21 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
 
         <div className="grid-container">
             <div className="grid-header">
-                <AutoCompleteRuns runs={availableRuns} selectedRun={selectedRun} onRunSelect={setSelectedRun} />
+                <SourceSelectionComponent
+                    availableRuns={availableRuns}
+                    selectedRun={selectedRun}
+                    setSelectedRun={setSelectedRun}
+                    inputValue={inputValue}
+                    setInputValue={setInputValue}
+                    handleValidateSourceSelection={handleValidateSourceSelection}
+                    inputRef={inputRef}
+                    availableTags={availableTags}
+                    selectedTags={selectedTags}
+                    setSelectedTags={setSelectedTags}
+                    gridSize={gridSize}
+                    setGridSize={setGridSize}
+                />
+               {/*  <AutoCompleteRuns runs={availableRuns} selectedRun={selectedRun} onRunSelect={setSelectedRun} />
                 <div>
                     <TextField
                         label="sourceids"
@@ -274,7 +289,7 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
                     />
                 </div>
                 <Operators availableTags={availableTags} selectedTags={selectedTags} onTagSelect={setSelectedTags} />
-                <GridSizeSelector gridSize={gridSize} setGridSize={setGridSize} />
+                <GridSizeSelector gridSize={gridSize} setGridSize={setGridSize} /> */}
             </div>
 
             <div className="grid-content">
