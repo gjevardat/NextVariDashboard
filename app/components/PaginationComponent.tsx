@@ -17,6 +17,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPageIndex, totalItems, i
   };
 
   const handleNext = () => {
+    console.log("total,nav",totalPages, currentPageIndex)
     if (currentPageIndex < totalPages - 1) {
       onPageChange(currentPageIndex + 1);
     }
@@ -35,7 +36,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPageIndex, totalItems, i
       </span>
 
       {/* Next Button */}
-      <button onClick={handleNext} disabled={currentPageIndex === totalPages }>
+      <button onClick={handleNext} disabled={currentPageIndex+1 === totalPages }>
         Next
       </button>
     </div>

@@ -17,7 +17,7 @@ export interface ts {
     obstimes: number[],
     val: number[],
     valerr: number[],
-    transit:bigint[]
+    transitid:bigint[]
 }
 
 export interface timeseriestag {
