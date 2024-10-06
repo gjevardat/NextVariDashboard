@@ -9,6 +9,7 @@ import { SourceGrid } from './SourceGridComponent';
 import GridSizeSelector from './GridSelector';
 import { TextField } from '@mui/material';
 import usePersistentState from './UsePersistentState'
+import Pagination from './PaginationComponent';
 
 
 interface BrowseTsProps {
@@ -57,21 +58,21 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
 
     function groupBySourceId(array: ts[]): source[] {
         return array.reduce((sources: source[], current: ts) => {
-          // Find an existing source with the same sourceid
-          let source = sources.find(s => BigInt(s.sourceid) === BigInt(current.sourceid));
-      
-          // If not found, create a new source object
-          if (!source) {
-            source = { sourceid: BigInt(current.sourceid), timeseries: [] };
-            sources.push(source); // Add the new source to the list
-          }
-      
-          // Add the current time series to the source's timeseries array
-          source.timeseries = [...source.timeseries, current];
-      
-          return sources;
+            // Find an existing source with the same sourceid
+            let source = sources.find(s => BigInt(s.sourceid) === BigInt(current.sourceid));
+
+            // If not found, create a new source object
+            if (!source) {
+                source = { sourceid: BigInt(current.sourceid), timeseries: [] };
+                sources.push(source); // Add the new source to the list
+            }
+
+            // Add the current time series to the source's timeseries array
+            source.timeseries = [...source.timeseries, current];
+
+            return sources;
         }, []);
-      }
+    }
 
     async function fetchTimeSeriesBatch(run: run, tags: string[], pageIndexes: number[], pageSize: number) {
         try {
@@ -98,12 +99,12 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
                 const flattenedSources = groupedPages.flatMap((p) => p.sources);
                 const newSources = [...prevSources, ...flattenedSources];
                 const sortedUniqueSources = newSources
-                    .sort((a: source, b: source) => (BigInt(a.sourceid) < BigInt(b.sourceid) ? -1 : 1)) 
+                    .sort((a: source, b: source) => (BigInt(a.sourceid) < BigInt(b.sourceid) ? -1 : 1))
                     .filter((source, index, arr) => {
-                        
+
                         return index === 0 || source.sourceid !== arr[index - 1].sourceid;
                     });
-                    console.log(sortedUniqueSources);
+                console.log(sortedUniqueSources);
                 return sortedUniqueSources;
             });
 
@@ -114,28 +115,28 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
     }
 
     async function fetchTimeSeriesList(run: run, tags: string[], sourceids: bigint[]) {
-        if(sourceids && sourceids.length>0){
+        if (sourceids && sourceids.length > 0) {
 
             const sourceidsString = sourceids.map((id) => id.toString()).join('&sourceids=');
-    
-            const dataPromise:Promise<any> =  fetch(`/api/getTS?runid=${run.runid}&tags=${tags.join('&tags=')}&sourceids=${sourceidsString}`)
-            .then(response => response.json());
-    
+
+            const dataPromise: Promise<any> = fetch(`/api/getTS?runid=${run.runid}&tags=${tags.join('&tags=')}&sourceids=${sourceidsString}`)
+                .then(response => response.json());
+
             const results = await dataPromise;
             const sources = groupBySourceId(results);
             setSources((prevSources) => {
-                
+
                 const newSources = [...prevSources, ...sources];
                 const sortedUniqueSources = newSources
-                    .sort((a: source, b: source) => (BigInt(a.sourceid) < BigInt(b.sourceid) ? -1 : 1)) 
+                    .sort((a: source, b: source) => (BigInt(a.sourceid) < BigInt(b.sourceid) ? -1 : 1))
                     .filter((source, index, arr) => {
-                        
+
                         return index === 0 || source.sourceid !== arr[index - 1].sourceid;
                     });
-                    console.log(sortedUniqueSources);
+                console.log(sortedUniqueSources);
                 return sortedUniqueSources;
             });
-            
+
         }
     }
 
@@ -149,24 +150,24 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
 
     const handleValidateSourceSelection = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter') {
-            console.log(event)            
-            
-            const ids:bigint[] = inputValue.split(/\s+|,|;/).map((id) => id.trim()).filter((id) => id).map((id)=>BigInt(id));
-            
+            console.log(event)
+
+            const ids: bigint[] = inputValue.split(/\s+|,|;/).map((id) => id.trim()).filter((id) => id).map((id) => BigInt(id));
+
             //fetch sources that are not yet downloaded !
             const idsToFetch = ids.filter((id) => !sources.map(s => (s.sourceid)).includes(id));
-            
-            selectedRun && fetchTimeSeriesList(selectedRun,selectedTags,idsToFetch)
-            
-            
+
+            selectedRun && fetchTimeSeriesList(selectedRun, selectedTags, idsToFetch)
+
+
             setFilterSource(ids);
             // Remove focus from the input element
-        inputRef && inputRef.current && inputRef.current.blur();
+            inputRef && inputRef.current && inputRef.current.blur();
         }
 
     };
 
-   
+
     useEffect(() => {
         // attach the event listener
         document.addEventListener('keydown', handleKeyDown);
@@ -192,7 +193,7 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
 
     }, []); // Empty dependency array means it runs once when the component mounts
 
-    
+
 
     useEffect(() => {
         if (runid !== null && availableRuns.length > 0) {
@@ -238,12 +239,12 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
 
             let pagesToFetch: number[] = [];
 
-      
+
 
             // Prefetch next n=prefetchPages pages (ensure it doesn't exceed total pages)
-            for (let i = pageIndex ; i < Math.min(pageIndex + prefetchPages, totalPages); i++) {
-                
-                if (!sources[i*pageSize] &&  !sources[(i*pageSize)+pageSize-1]) {
+            for (let i = pageIndex; i < Math.min(pageIndex + prefetchPages, totalPages); i++) {
+
+                if (!sources[i * pageSize] && !sources[(i * pageSize) + pageSize - 1]) {
 
                     pagesToFetch.push(i);
                 }
@@ -280,8 +281,8 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
                 <SourceGrid
                     run={selectedRun}
                     sources={sources && sources.length > 0 ?
-                         sources
-                            .filter((source) => { return filterSource.length>0?filterSource.includes(BigInt(source.sourceid)):true }) 
+                        sources
+                            .filter((source) => { return filterSource.length > 0 ? filterSource.includes(BigInt(source.sourceid)) : true })
                             .slice(pageIndex * gridSize.x * gridSize.y, (pageIndex + 1) * gridSize.x * gridSize.y) : null}
                     columns={gridSize.x}
                     rows={gridSize.y}
@@ -289,6 +290,16 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
                     setPageIndex={setPageIndex}
                 />
             </div>
+            <div className="grid-footer">
+                {sources && <Pagination
+
+                    currentPageIndex={pageIndex}
+                    totalItems={selectedRun ? selectedRun.size : 0}
+                    itemsPerPage={gridSize.x * gridSize.y}
+                    onPageChange={setPageIndex}
+                />}
+            </div>
+
         </div>
     )
 }

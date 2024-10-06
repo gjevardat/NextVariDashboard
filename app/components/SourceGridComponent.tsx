@@ -50,7 +50,7 @@ export const SourceGrid: React.FC<GridProps> = ({ run, sources, columns, rows, p
           return <div key={index} style={{ border: '1px solid #ccc' }} />;
         }
 
-        // Render the source component
+        
         return (
           <div
             key={index}
@@ -68,13 +68,7 @@ export const SourceGrid: React.FC<GridProps> = ({ run, sources, columns, rows, p
       })}
 
  
-       {sources && <Pagination
-
-        currentPageIndex={pageIndex}
-        totalItems={run?run.size:0}
-        itemsPerPage={columns*rows}
-        onPageChange={setPageIndex} 
-      />}
+      
 
     </div>
   );

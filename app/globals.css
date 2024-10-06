@@ -28,34 +28,38 @@ body {
  
   .grid-container {
     display: grid;
-    grid-template-columns: 1fr;  /* 1 column layout */
-    grid-template-rows: auto 1fr; /* 2 rows: first row adjusts to content, second row takes remaining space */
+    grid-template-columns: 1fr; /* 1 column layout */
+    grid-template-rows: auto 1fr 5%; /* 3 rows: header, content, and footer with footer fixed at 10% */
     height: 100vh; /* Full viewport height */
-    width: 100vw;
-    /* Full width of viewport */
-
-    gap: 2px;
-    /* Optional gap between grid items */
-}
-
-.grid-header {
- /* grid-row: 1 / 2;  /* This is the header row */
-  display: flex;
+    width: 100vw; /* Full width of viewport */
+    gap: 2px; /* Optional gap between grid items */
+  }
   
-  flex-wrap: wrap;  /* Wrap if components overflow horizontally */
+  .grid-header {
+    grid-row: 1 / 2; /* Header row */
+    display: flex;
+    flex-wrap: wrap; /* Wrap if components overflow horizontally */
+    padding: 10px;
+    /*background-color: #f0f0f0; /* Optional: background for the header */
+  }
   
-  padding: 10px;
-  /*  background-color: #f0f0f0; /* Optional: background for the header */
-}
-
-.grid-content {
-  /*grid-row: 2 / 3;  /* This is the content row */
-  padding: 10px;
-  overflow: auto; /* Allow scrolling if the content overflows */
-  align-items: center;
-  text-align: center;
-}
-
+  .grid-content {
+    /*grid-row: 2 / 3; /* Content row */
+    padding: 10px;
+    overflow: auto; /* Allow scrolling if the content overflows */
+    align-items: center;
+    text-align: center;
+  }
+  
+  .grid-footer {
+    grid-row: 3 / 4; /* Footer row */
+    display: flex;
+    justify-content: center; /* Center footer content horizontally */
+    align-items: center; /* Center footer content vertically */
+    padding: 10px;
+    /*background-color: #e0e0e0; /* Optional: background for the footer */
+  }
+  
 
 
   .grid-item {
