@@ -49,7 +49,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPageIndex, totalItems, i
 
         {/* Page Info */}
         <Typography variant="body2"> {/* Smaller font size */}
-            {currentPageIndex + 1} of {totalPages}
+            Page {currentPageIndex + 1} of {totalPages}
         </Typography>
 
         {/* Next Button */}

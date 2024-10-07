@@ -9,8 +9,12 @@ import {
   Grid2,
   IconButton,
   Drawer,
+  Box,
+  Chip,
+  Badge,
+  Popover,
 } from '@mui/material';
-import FilterListIcon from '@mui/icons-material/FilterList';
+
 import AutoCompleteRuns from '@/app/components//AutoCompleteRuns'; // Your existing component
 import Operators from '@/app/components/Operators'; // Your existing component
 import GridSizeSelector from '@/app/components/GridSelector'; // Your existing component
@@ -29,79 +33,57 @@ const SourceSelectionComponent = ({
   gridSize,
   setGridSize,
 }) => {
-  const [open, setOpen] = useState(false);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const handleApplyFilters = () => {
-    // Apply your filters logic
-    handleClose(); // Close the dialog after applying
-  };
+    
+    
+    const sourceIdsCount = inputValue.split(/\s+|,|;/).filter((id) => id.trim()).length;
 
   return (
     <div>
       {/* Filter Button */}
-      <IconButton color="primary" onClick={handleClickOpen} aria-label="open filter dialog">
-        <FilterListIcon />
-      </IconButton>
+      <Box 
+        bgcolor="#f9f9f9"
+        borderRadius="8px"
+        boxShadow={2}
+        padding="4px"
+        sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+    
 
-      {/* Filter Dialog */}
-      <Drawer open={open} onClose={handleClose} maxWidth="md" fullWidth>
-        <DialogTitle>Configure sources selection</DialogTitle>
-        <DialogContent>
-          <Grid2 container spacing={2}>
-            {/* AutoCompleteRuns */}
-            <Grid2 item xs={12} sm={6} sx={{ paddingTop: 2 }}>
-              <AutoCompleteRuns
-                runs={availableRuns}
-                selectedRun={selectedRun}
-                onRunSelect={setSelectedRun}
-              />
-            </Grid2>
+        {/* Summary Information as Badges */}
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          {/* Selected Run Chip - Clickable */}
+          {selectedRun && (
+            
+            
+                <AutoCompleteRuns
+                  runs={availableRuns}
+                  selectedRun={selectedRun}
+                      onRunSelect={(newRun) => {
+                    setSelectedRun(newRun);
+                    
+                  }}
+                />
+            
+          )}
+<Badge badgeContent={sourceIdsCount} max={Infinity} color="primary"  anchorOrigin={{
+    vertical: 'top',
+    horizontal: 'right',
+  }}>
+                <TextField
+                        label="sourceids"
+                        inputRef={inputRef}
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)} // Handle input value change
+                        onKeyDown={handleValidateSourceSelection} // Handle logic on Enter key press
+                        size="small"
+                        auto-focus='false'
+                    />
+                    </Badge>    
+                <Operators availableTags={availableTags} selectedTags={selectedTags} onTagSelect={setSelectedTags} />
+                <GridSizeSelector gridSize={gridSize} setGridSize={setGridSize} />
+        </Box>
+      </Box>
 
-            {/* TextField for source IDs */}
-            <Grid2 item xs={12} sm={6} sx={{ paddingTop: 2 }}>
-              <TextField
-                label="Source IDs"
-                inputRef={inputRef}
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleValidateSourceSelection}
-                size="small"
-                fullWidth
-              />
-            </Grid2>
-
-            {/* Operators (Tag selection) */}
-            <Grid2 item xs={12} sm={6} sx={{ paddingTop: 2 }}>
-              <Operators
-                availableTags={availableTags}
-                selectedTags={selectedTags}
-                onTagSelect={setSelectedTags}
-              />
-            </Grid2>
-
-            {/* Grid Size Selector */}
-            <Grid2 item xs={12} sm={6} sx={{ paddingTop: 2 }}>
-              <GridSizeSelector gridSize={gridSize} setGridSize={setGridSize} />
-            </Grid2>
-          </Grid2>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="secondary">
-            Cancel
-          </Button>
-          <Button onClick={handleApplyFilters} color="primary" variant="contained">
-            Apply
-          </Button>
-        </DialogActions>
-      </Drawer>
+    
     </div>
   );
 };

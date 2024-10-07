@@ -11,7 +11,7 @@ export default function AutoCompleteRuns({runs, selectedRun, onRunSelect }: {run
 
 
 
-   // const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = React.useState(false);
     //const [value, setValue] = React.useState<run>(selectedRun);
     
     const loading = false;// open &&     options && options.length === 0;
@@ -38,13 +38,13 @@ export default function AutoCompleteRuns({runs, selectedRun, onRunSelect }: {run
                 }
                 size='small'
                 
-              /*   open={open}
+                open={open}
                 onOpen={() => {
                     setOpen(true);
                 }}
                 onClose={() => {
                     setOpen(false);
-                }} */
+                }}
                 ListboxComponent={CustomListbox}
 
                 isOptionEqualToValue={(option: run, value: run) => option.runid === value.runid}
@@ -52,18 +52,19 @@ export default function AutoCompleteRuns({runs, selectedRun, onRunSelect }: {run
                 options={runs}
                // loading={loading}
                 renderInput={(params) => (
+                  
                     <TextField
                     {...params}
-                
+                    size='small'
                    label="Search run"
                    style={{ minWidth: '600px' }}
-                 /*   sx={{
+                    /* sx={{
                     '& .MuiInputBase-root': { 
-                      fontSize: '12px',
+                      fontSize: '14px',
                       
                     },
                     
-                  }}  */
+                  }}   */
                     />
                 )}
                
