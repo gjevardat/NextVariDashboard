@@ -13,7 +13,7 @@ interface PaginationProps {
 const Pagination: React.FC<PaginationProps> = ({ currentPageIndex, totalItems, itemsPerPage, onPageChange }) => {
   
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-  console.log("tot items", totalItems, " tot pages",  totalPages, "items per page", itemsPerPage, "div" )
+ // console.log("tot items", totalItems, " tot pages",  totalPages, "items per page", itemsPerPage, "div" )
   const handlePrev = () => {
     if (currentPageIndex > 0) {
       onPageChange(currentPageIndex - 1);
@@ -21,7 +21,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPageIndex, totalItems, i
   };
 
   const handleNext = () => {
-    console.log("total,nav",totalPages, currentPageIndex)
+    //console.log("total,nav",totalPages, currentPageIndex)
     if (currentPageIndex < totalPages - 1) {
       onPageChange(currentPageIndex + 1);
     }
