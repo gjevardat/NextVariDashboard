@@ -1,52 +1,45 @@
+'use client'
 
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useReducer, useRef } from 'react';
 import { useState, useEffect } from 'react'
 import { run, ts, timeseriestag, source } from '@/app/types';
-import { getRuns } from '@/app/components/getruns';
+
 import { SourceGrid } from './SourceGridComponent';
-
-
-
 import Pagination from './PaginationComponent';
 import SourceSelectionComponent from './SourceSelectionComponent';
+import { dataselection } from './StateReducer';
+
 
 
 interface BrowseTsProps {
-    runid: number | null,
+    run: run | null,
     sourceid: bigint | null,
-    tags: string[]
+    tags: string[],
+    availableRuns: run[]
+
 }
 
-interface page {
+export interface page {
     pageIndex: number,
     sources: source[]
 }
 
-type dataselection = {
-    selectedRun: run | null,
-    sourcesFilter: bigint[]
-}
-export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsProps) {
+
+export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }: BrowseTsProps) {
 
 
-    const [availableRuns, setAvailableRuns] = useState<run[]>([]);
+
+
     const [availableTags, setAvailableTags] = useState<timeseriestag[]>([]);
-
-    //const [selectedRun, setSelectedRun] = useState<run | null>(null);
-
     const [selectedTags, setSelectedTags] = useState<string[]>(tags);
-    const [inputValue, setInputValue] = React.useState('');
-
-    //const [gridSize, setGridSize] = usePersistentState<{ x: number, y: number }>('gridSize',{ x: 2, y: 2 });
-
 
     const [gridSize, setGridSize] = useState<{ x: number, y: number }>({ x: 2, y: 2 })
     const [pageIndex, setPageIndex] = useState<number>(0);
     const defaultPrefetchPages = 10;
     const [sources, setSources] = useState<source[]>([])
 
-    const inputRef = useRef<HTMLInputElement>(null);
-    const [dataSelection, setDataSelection] = useState<dataselection>({ selectedRun: null, sourcesFilter: [] });
+
+    const [dataSelection, setDataSelection] = useState<dataselection>({ selectedRun: null, selectedSources: [] });
 
     const handleKeyDown = useCallback(
         (event: KeyboardEvent) => {
@@ -89,9 +82,6 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
                     .then(response => response.json())
                     .then(dataresponse => ({ pageIndex: reqPageIndex, dataresponse }));
             });
-
-
-
             // Wait for all fetches to complete
             const results = await Promise.all(fetchPromises);
             // console.log(results)
@@ -153,28 +143,15 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
     async function fetchRunTimeSeriesTag(run: run) {
         const response = await fetch(`/api/getTimeSeriesResultTypes?runid=${run.runid}`)
         const dataresponse = await response.json();
-
         setAvailableTags(dataresponse)
     }
 
-    const handleValidateSourceSelection = (event: React.KeyboardEvent<HTMLInputElement>) => {
-        if (event.key === 'Enter') {
-            //console.log(event)
-            const selectedRun = dataSelection && dataSelection.selectedRun
-            const ids: bigint[] = inputValue.split(/\s+|,|;/).map((id) => id.trim()).filter((id) => id).map((id) => BigInt(id));
-
-            //fetch sources that are not yet downloaded !
-            const idsToFetch = ids.filter((id) => !sources.map(s => (s.sourceid)).includes(id));
-
-            selectedRun && fetchTimeSeriesList(selectedRun, selectedTags, idsToFetch)
-
-            setDataSelection((prev) => ({ ...prev, sourcesFilter: ids }))
-
-            // Remove focus from the input element
-            inputRef && inputRef.current && inputRef.current.blur();
-        }
-
-    };
+    /**
+     * Update run state coming from prop at component mount
+     */
+    useEffect(() => {
+        setDataSelection((prevSel) => ({ ...prevSel, selectedRun: run }))
+    }, []);
 
 
     useEffect(() => {
@@ -187,39 +164,16 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
         };
     }, [handleKeyDown]); // Add handleKeyDown as a dependency
 
-    useEffect(() => {
-        async function fetchRuns() {
-            try {
-                const runs = await getRuns(); // Fetch runs data
-                setAvailableRuns(runs); // Update state with the fetched data
-            } catch (error) {
-                console.error("Failed to fetch runs:", error);
-            }
-        }
-
-        fetchRuns();
-
-
-    }, []); // Empty dependency array means it runs once when the component mounts
-
 
 
     useEffect(() => {
-        if (runid !== null && availableRuns.length > 0) {
-            setDataSelection((prevSelection) => ({ ...prevSelection, selectedRun: availableRuns.filter((r) => r.runid === runid)[0] }));
-        }
-
-    }, [availableRuns])
-
-    useEffect(() => {
-
-
-        dataSelection.selectedRun && prefetch(dataSelection, pageIndex, 10);
+        //trigger some prefetch when we change page except for first page
+        if (pageIndex != 0)
+            dataSelection.selectedRun && prefetch(dataSelection, sources, pageIndex, 10);
     }, [pageIndex]);
 
     useEffect(() => {
         const selectedRun = dataSelection && dataSelection.selectedRun
-
         if (selectedRun !== null) {
             fetchTimeSeriesBatch(selectedRun, selectedTags, [pageIndex], gridSize.x * gridSize.y);
         }
@@ -227,40 +181,53 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
 
 
     useEffect(() => {
+
+
+
         // Prevent hook on initial component mounting
         const selectedRun = dataSelection && dataSelection.selectedRun
 
         if (selectedRun) {
-            console.log("Changed run", selectedRun?.runid)
-            fetchRunTimeSeriesTag(selectedRun)
+
 
             setSources((prevSources) => []) // empty the sources when changing run
+            console.log("starting data fetch")
+            prefetch(dataSelection, [], 0, 2);
 
-            if (dataSelection.sourcesFilter.length > 0) {
-                const ids: bigint[] = inputValue.split(/\s+|,|;/).map((id) => id.trim()).filter((id) => id).map((id) => BigInt(id));
-                console.log("input vlaue", inputValue)
-                //fetch sources that are not yet downloaded !
-
-                console.log("ids to fetch", ids)
-                fetchTimeSeriesList(selectedRun, selectedTags, ids)
-            }
-            else {
-                console.log("starting data fetch")
-                prefetch(dataSelection, 0, 2);
-            }
             setPageIndex(0)
-            //console.log(`selected Run change ${selectedRun?.runid}`)
+
         }
+
+
     }, [dataSelection.selectedRun]);
 
 
 
+    useEffect(() => {
+
+
+
+        // Prevent hook on initial component mounting
+        const selectedRun = dataSelection && dataSelection.selectedRun
+
+        if (selectedRun) {
+            console.log(`data selection change for run  ${selectedRun?.runid} and sources ${dataSelection.selectedSources}`)
+            if (dataSelection.selectedSources.length > 0) {
+                const idsToFetch = dataSelection.selectedSources.filter((id) => !sources.map(s => (s.sourceid)).includes(id));
+                console.log("ids to fetch", idsToFetch)
+                fetchTimeSeriesList(selectedRun, selectedTags, idsToFetch)
+            }
+            setPageIndex(0)
+        }
+
+
+    }, [dataSelection.selectedSources]);
 
     useEffect(() => {
         dataSelection.selectedRun && setPageIndex(0)
     }, [gridSize]);
 
-    async function prefetch(dataselection: dataselection, page: number, prefetchPages: number = defaultPrefetchPages) {
+    async function prefetch(dataselection: dataselection, currentSources: source[], page: number, prefetchPages: number = defaultPrefetchPages) {
         if (dataselection.selectedRun && page != null) {
             console.log("starting fetch data")
             let pagesToFetch: number[] = [];
@@ -270,9 +237,9 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
 
             // Prefetch next n=prefetchPages pages (ensure it doesn't exceed total pages)
             for (let i = page; i < Math.min(page + prefetchPages, totalPages); i++) {
-              //  if (!sources[i * pageSize] && !sources[(i * pageSize) + pageSize - 1]) {
+                if (!currentSources[i * pageSize] && !currentSources[(i * pageSize) + pageSize - 1]) {
                     pagesToFetch.push(i);
-               // }
+                }
             }
 
             // Call the batch fetching function with accumulated page indices
@@ -290,10 +257,6 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
                     availableRuns={availableRuns}
                     dataSelection={dataSelection}
                     setDataSelection={setDataSelection}
-                    inputValue={inputValue}
-                    setInputValue={setInputValue}
-                    handleValidateSourceSelection={handleValidateSourceSelection}
-                    inputRef={inputRef}
                     availableTags={availableTags}
                     selectedTags={selectedTags}
                     setSelectedTags={setSelectedTags}
@@ -307,7 +270,7 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
                     run={dataSelection.selectedRun}
                     sources={sources && sources.length > 0 ?
                         sources
-                            .filter((source) => { return dataSelection.sourcesFilter.length > 0 ? dataSelection.sourcesFilter.includes(BigInt(source.sourceid)) : true })
+                            .filter((source) => { return dataSelection.selectedSources.length > 0 ? dataSelection.selectedSources.includes(BigInt(source.sourceid)) : true })
                             .slice(pageIndex * gridSize.x * gridSize.y, (pageIndex + 1) * gridSize.x * gridSize.y) : null}
                     columns={gridSize.x}
                     rows={gridSize.y}
@@ -319,7 +282,7 @@ export default function BrowseTsComponent({ runid, sourceid, tags }: BrowseTsPro
                 {sources && <Pagination
 
                     currentPageIndex={pageIndex}
-                    totalItems={dataSelection.selectedRun ? dataSelection.sourcesFilter.length > 0 ? dataSelection.sourcesFilter.length : dataSelection.selectedRun.size : 0}
+                    totalItems={dataSelection.selectedRun ? dataSelection.selectedSources.length > 0 ? dataSelection.selectedSources.length : dataSelection.selectedRun.size : 0}
                     itemsPerPage={gridSize.x * gridSize.y}
                     onPageChange={setPageIndex}
                 />}
