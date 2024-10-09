@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { run, source } from "../types";
 import Pagination from "./PaginationComponent";
 import { TimeSeries } from "./TimeSeriesChart";
-import { CircularProgress, LinearProgress } from "@mui/material";
+import { Box, CircularProgress, LinearProgress } from "@mui/material";
 
 interface GridProps {
-  run : run|null,
+  run: run | null,
   sources: source[] | null,
   columns: number,
   rows: number,
@@ -15,22 +15,22 @@ interface GridProps {
 }
 
 export const SourceGrid: React.FC<GridProps> = ({ run, sources, columns, rows, pageIndex, setPageIndex }) => {
-  
-  
-  
-    
-  
 
-   if(run && !sources){
-    return (<div><LinearProgress/></div>)
-  } 
 
- 
+
+
+
+
+  if (run && !sources) {
+    return (<div><LinearProgress /></div>)
+  }
+
+
 
   //console.log(`grid of size ${columns}x${rows} will show ${sources.length} sources of page with index ${pageIndex}`)
   return (
-    
-    
+
+
     <div
       style={{
         display: 'grid',
@@ -50,25 +50,29 @@ export const SourceGrid: React.FC<GridProps> = ({ run, sources, columns, rows, p
           return <div key={index} style={{ border: '1px solid #ccc' }} />;
         }
 
-        
+
         return (
-          <div
-            key={index}
-            style={{
-              border: '1px solid #ccc', // Example styling, adjust as needed
-              padding: '10px',
-              height: '100%',
-              overflow: 'hidden'
-            }}
-          >
-            <h4><b>{source.sourceid.toString()}</b></h4>
-            <TimeSeries source={sources ? source : null} />
-          </div>
+          
+
+
+            <div
+              key={index}
+               style={{
+                border: '1px solid #ccc', 
+                padding: '10px',
+                height: '100%',
+                overflow: 'hidden'
+                }} 
+            >
+              <h4><b>{source.sourceid.toString()}</b></h4>
+              <TimeSeries source={sources ? source : null} />
+            </div>
+          
         );
       })}
 
- 
-      
+
+
 
     </div>
   );

@@ -56,6 +56,7 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
         [dataSelection, gridSize, pageIndex] // Add state variables as dependencies 
     );
 
+       //todo in SQL 
     function groupBySourceId(array: ts[]): source[] {
         return array.reduce((sources: source[], current: ts) => {
             // Find an existing source with the same sourceid
@@ -147,7 +148,7 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
     }
 
     /**
-     * Update run state coming from prop at component mount
+     * Update run state coming from prop when component is mounting
      */
     useEffect(() => {
         setDataSelection((prevSel) => ({ ...prevSel, selectedRun: run }))
@@ -181,32 +182,16 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
 
 
     useEffect(() => {
-
-
-
         // Prevent hook on initial component mounting
         const selectedRun = dataSelection && dataSelection.selectedRun
-
         if (selectedRun) {
-
-
-            setSources((prevSources) => []) // empty the sources when changing run
-            console.log("starting data fetch")
-            prefetch(dataSelection, [], 0, 2);
-
+            setSources((prevSources) => []) // empty the sources when changing run           
+            prefetch(dataSelection, [], 0, 4);
             setPageIndex(0)
-
         }
-
-
     }, [dataSelection.selectedRun]);
 
-
-
     useEffect(() => {
-
-
-
         // Prevent hook on initial component mounting
         const selectedRun = dataSelection && dataSelection.selectedRun
 
@@ -219,8 +204,6 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
             }
             setPageIndex(0)
         }
-
-
     }, [dataSelection.selectedSources]);
 
     useEffect(() => {
@@ -235,7 +218,7 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
             let totalPages = Math.ceil(dataselection.selectedRun.size / pageSize); // Assuming total number of pages can be calculated
 
 
-            // Prefetch next n=prefetchPages pages (ensure it doesn't exceed total pages)
+            // Prefetch next n=prefetchPages pages 
             for (let i = page; i < Math.min(page + prefetchPages, totalPages); i++) {
                 if (!currentSources[i * pageSize] && !currentSources[(i * pageSize) + pageSize - 1]) {
                     pagesToFetch.push(i);
@@ -279,13 +262,13 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
                 />
             </div>
             <div className="grid-footer">
-                {sources && <Pagination
+                <Pagination
 
                     currentPageIndex={pageIndex}
                     totalItems={dataSelection.selectedRun ? dataSelection.selectedSources.length > 0 ? dataSelection.selectedSources.length : dataSelection.selectedRun.size : 0}
                     itemsPerPage={gridSize.x * gridSize.y}
                     onPageChange={setPageIndex}
-                />}
+                />
             </div>
 
         </div>

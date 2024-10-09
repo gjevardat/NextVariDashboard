@@ -30,15 +30,17 @@ const GridSizeSelector = ({ gridSize, setGridSize }: GridSizeProps) => {
         size="small" 
         type="number" 
         onChange={handleChangeCols}
-        inputProps={{ min: 1, max: 4 }}
+        
+        inputProps={{ min: 1, max: 5 }}
          />
       <TextField 
         label="rows"
+        
         defaultValue={gridSize.y}
         size="small"
         type="number"
         onChange={handleChangeRows}
-        inputProps={{ min: 1, max: 4 }}
+        inputProps={{ min: 1, max: 5 }}
         />
     </div>
 

@@ -64,9 +64,9 @@ const SourceSelectionComponent = ({
                 sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
 
 
-                {/* Summary Information as Badges */}
+                
                 <Box sx={{ display: 'flex', gap: 1 }}>
-                    {/* Selected Run Chip - Clickable */}
+                
                     {dataSelection.selectedRun && (
 
 
