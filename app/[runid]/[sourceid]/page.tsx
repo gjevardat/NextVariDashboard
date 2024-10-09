@@ -1,32 +1,35 @@
-'use client'
 
-import { useParams } from "next/navigation"
-import BrowseTsComponent from "@/app/components/BrowsTsComponent"
-import { useEffect } from "react";
-import { getRuns } from "@/app/components/getruns";
+import BrowseTsComponent from '@/app/components/BrowsTsComponent';
+import { getRun } from '@/app/lib/data';
 
 
-export default function page()  {
-
-    const params = useParams<{runid:string; sourceid:string}>();
-    const runid = params?params.runid:null;
-    const sourceid = params?params.sourceid:null;
-    
-   const parsedRunId = runid?parseInt(runid,10):null;
-    const parsedSourceid=  sourceid?BigInt(sourceid):null;
-    
-    return (
-        <BrowseTsComponent runid={parsedRunId} sourceid={parsedSourceid} tags={['ExtremeErrorCleaningMagnitudeDependent_FOV_G','ExtremeErrorCleaningMagnitudeDependent_FOV_BP','ExtremeErrorCleaningMagnitudeDependent_FOV_RP']}/>
-    )
-
+interface Params {
+    runid: string; // Define the expected parameter type
+    sourceid:string
 }
 
 
+// This is now a server component
+export default async function Page({ params }: { params: Params }) {
+    // Fetch available runs server-side
+    const availableRuns = await getRun(0,1000);
 
+    
+    const runid = params?.runid  ? parseInt(params.runid, 10) : null;
+    const sourceid=  params?.sourceid?BigInt(params.sourceid):null;
 
-
-
-
-
-
-
+    const run = availableRuns.filter((r) => r.runid === runid)[0]
+    
+    return (
+        <BrowseTsComponent
+            run={run}
+            sourceid={sourceid}
+            tags={[
+                'ExtremeErrorCleaningMagnitudeDependent_FOV_G',
+                'ExtremeErrorCleaningMagnitudeDependent_FOV_BP',
+                'ExtremeErrorCleaningMagnitudeDependent_FOV_RP',
+            ]}
+            availableRuns={availableRuns} 
+        />
+    );
+}

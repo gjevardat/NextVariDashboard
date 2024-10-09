@@ -151,7 +151,7 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
      * Update run state coming from prop when component is mounting
      */
     useEffect(() => {
-        setDataSelection((prevSel) => ({ ...prevSel, selectedRun: run }))
+        setDataSelection({selectedRun: run ,selectedSources:sourceid?Array(sourceid):[]});
     }, []);
 
 
