@@ -56,7 +56,7 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
         [dataSelection, gridSize, pageIndex] // Add state variables as dependencies 
     );
 
-       //todo in SQL 
+       //todo in SQL ?
     function groupBySourceId(array: ts[]): source[] {
         return array.reduce((sources: source[], current: ts) => {
             // Find an existing source with the same sourceid
@@ -151,6 +151,7 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
      * Update run state coming from prop when component is mounting
      */
     useEffect(() => {
+        sourceid && setGridSize({x:1,y:1});
         setDataSelection({selectedRun: run ,selectedSources:sourceid?Array(sourceid):[]});
     }, []);
 
@@ -175,7 +176,8 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
 
     useEffect(() => {
         const selectedRun = dataSelection && dataSelection.selectedRun
-        if (selectedRun !== null) {
+        if (selectedRun) {
+            setSources((prevSources) => []) // empty the sources when changing run           
             fetchTimeSeriesBatch(selectedRun, selectedTags, [pageIndex], gridSize.x * gridSize.y);
         }
     }, [selectedTags]);
@@ -185,6 +187,7 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
         // Prevent hook on initial component mounting
         const selectedRun = dataSelection && dataSelection.selectedRun
         if (selectedRun) {
+            fetchRunTimeSeriesTag(selectedRun);
             setSources((prevSources) => []) // empty the sources when changing run           
             prefetch(dataSelection, [], 0, 4);
             setPageIndex(0)
@@ -263,7 +266,6 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
             </div>
             <div className="grid-footer">
                 <Pagination
-
                     currentPageIndex={pageIndex}
                     totalItems={dataSelection.selectedRun ? dataSelection.selectedSources.length > 0 ? dataSelection.selectedSources.length : dataSelection.selectedRun.size : 0}
                     itemsPerPage={gridSize.x * gridSize.y}

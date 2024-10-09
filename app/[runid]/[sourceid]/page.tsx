@@ -1,6 +1,6 @@
 
 import BrowseTsComponent from '@/app/components/BrowsTsComponent';
-import { getRun } from '@/app/lib/data';
+import { getRun, getTimeSeriesResultTypes } from '@/app/lib/data';
 
 
 interface Params {
@@ -9,17 +9,16 @@ interface Params {
 }
 
 
-// This is now a server component
-export default async function Page({ params }: { params: Params }) {
-    // Fetch available runs server-side
-    const availableRuns = await getRun(0,1000);
 
-    
+export default async function Page({ params }: { params: Params }) {
+
+
+    const availableRuns = await getRun(0,1000);
     const runid = params?.runid  ? parseInt(params.runid, 10) : null;
     const sourceid=  params?.sourceid?BigInt(params.sourceid):null;
 
     const run = availableRuns.filter((r) => r.runid === runid)[0]
-    
+
     return (
         <BrowseTsComponent
             run={run}
