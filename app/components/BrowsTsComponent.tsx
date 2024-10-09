@@ -217,6 +217,7 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
 
     useEffect(() => {
         dataSelection.selectedRun && setPageIndex(0)
+        dataSelection.selectedRun && prefetch(dataSelection, sources, pageIndex, 2);
     }, [gridSize]);
 
     async function prefetch(dataselection: dataselection, currentSources: source[], page: number, prefetchPages: number = defaultPrefetchPages) {
