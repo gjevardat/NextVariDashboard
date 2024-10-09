@@ -3,27 +3,16 @@
 import React, { useCallback, useReducer, useRef } from 'react';
 import { useState, useEffect } from 'react'
 import { run, ts, timeseriestag, source } from '@/app/types';
-
 import { SourceGrid } from './SourceGridComponent';
 import Pagination from './PaginationComponent';
-import SourceSelectionComponent from './SourceSelectionComponent';
-
-
-
-export type dataselection = {
-    selectedRun: run ,
-    selectedSources: bigint[]
-}
-
-
+import SourceSelectionComponent, { dataselection } from './SourceSelectionComponent';
 interface BrowseTsProps {
-    run: run ,
+    run: run | null ,
     sourceid: bigint | null,
     tags: string[],
     availableRuns: run[]
 
 }
-
 
 export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }: BrowseTsProps) {
 
@@ -48,12 +37,6 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
         },
         [dataSelection, gridSize, pageIndex] // Add state variables as dependencies 
     );
-
-   
-
-
-   
-
 
     async function fetchRunTimeSeriesTag(run: run) {
         const response = await fetch(`/api/getTimeSeriesResultTypes?runid=${run.runid}`)
@@ -114,9 +97,9 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
             </div>
 
             <div className="grid-content">
-                 {selectedRun && <SourceGrid
+                 {selectedRun!==null && <SourceGrid
                     dataselection={dataSelection}
-                    run={dataSelection.selectedRun}
+                    run={selectedRun}
                   
                     selectedTags={selectedTags}
                     columns={gridSize.x}

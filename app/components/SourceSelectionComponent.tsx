@@ -9,7 +9,13 @@ import AutoCompleteRuns from '@/app/components//AutoCompleteRuns'; // Your exist
 import Operators from '@/app/components/Operators'; // Your existing component
 import GridSizeSelector from '@/app/components/GridSelector'; // Your existing component
 import { run, timeseriestag } from '../types';
-import { dataselection } from './StateReducer';
+
+
+
+export type dataselection = {
+    selectedRun: run |null,
+    selectedSources: bigint[]
+}
 
 
 

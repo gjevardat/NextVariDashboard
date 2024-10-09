@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+
 import { run, source, ts } from "@/app/types";
-import Pagination from "./PaginationComponent";
+
 import { TimeSeries } from "./TimeSeriesChart";
-import { Box, CircularProgress, LinearProgress } from "@mui/material";
+import {  LinearProgress } from "@mui/material";
 import { fetchTimeSeriesList, getTimeSeries, getTimeSeriesPreload, TimeSeriesFetch } from "./TimeSeriesDataFetching";
-import { dataselection } from "./BrowsTsComponent";
+import { dataselection } from "./SourceSelectionComponent";
+
 
 interface GridProps {
   run: run,

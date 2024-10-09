@@ -197,8 +197,12 @@ const CodeBox = () => {
     </Box>
   );
 };
-
-const DashboardCard = ({ href, title, description }) => {
+type CardProps = {
+  href: string,
+  title:string,
+  description:string
+}
+const DashboardCard = ({ href, title, description }:CardProps) => {
   return (
     <Card>
       <CardContent>
