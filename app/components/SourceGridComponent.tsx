@@ -1,30 +1,72 @@
 import { useEffect, useState } from "react";
-import { run, source } from "../types";
+import { run, source, ts } from "@/app/types";
 import Pagination from "./PaginationComponent";
 import { TimeSeries } from "./TimeSeriesChart";
 import { Box, CircularProgress, LinearProgress } from "@mui/material";
+import { fetchTimeSeriesList, getTimeSeries, getTimeSeriesPreload, TimeSeriesFetch } from "./TimeSeriesDataFetching";
+import { dataselection } from "./BrowsTsComponent";
 
 interface GridProps {
-  run: run | null,
-  sources: source[] | null,
+  run: run,
+  dataselection:dataselection
   columns: number,
   rows: number,
   pageIndex: number,
-  setPageIndex: (pageIndex: number) => void,
-  isLoading:boolean
-  selectedTags:string[]
+  
+  
+  selectedTags: string[]
 }
 
-export const SourceGrid: React.FC<GridProps> = ({ run, sources, selectedTags, columns, rows, pageIndex, setPageIndex,isLoading }) => {
 
-  if (run && (sources==null || sources.length==0 || isLoading )   ) {
+//todo in SQL ?
+function groupBySourceId(array: ts[]): source[] {
+  return array.reduce((sources: source[], current: ts) => {
+    // Find an existing source with the same sourceid
+    let source = sources.find(s => BigInt(s.sourceid) === BigInt(current.sourceid));
+
+    // If not found, create a new source object
+    if (!source) {
+      source = { sourceid: BigInt(current.sourceid), timeseries: [] };
+      sources.push(source); // Add the new source to the list
+    }
+
+    // Add the current time series to the source's timeseries array
+    source.timeseries = [...source.timeseries, current];
+
+    return sources;
+  }, []);
+}
+
+export const SourceGrid: React.FC<GridProps> = ({ run, selectedTags, columns, rows, pageIndex ,dataselection}) => {
+
+  const pageSize = columns * rows;
+  const prefetchSize = 10;
+
+  const { timeseries, error, isLoading }: TimeSeriesFetch = getTimeSeries({ runid: run?.runid, tags: selectedTags, pageIndex: pageIndex, pageSize: pageSize });
+
+  console.log(`selected sources ${dataselection.selectedSources}`)
+  const filtered:TimeSeriesFetch = fetchTimeSeriesList({ runid: run?.runid, tags: selectedTags, sourceids:dataselection.selectedSources });
+
+  
+    for(let i = pageIndex; i<pageIndex+prefetchSize; i++){
+      getTimeSeriesPreload({ runid: run?.runid, tags: selectedTags, pageIndex: pageIndex+1, pageSize: pageSize });
+    }
+  
+ 
+
+
+  if (run && (timeseries == null || timeseries.length == 0 || isLoading)) {
     return (<div><LinearProgress /></div>)
   }
+  
+  
+  const groupedSources:source[] = groupBySourceId(filtered?.timeseries?.length>0?filtered.timeseries:timeseries);
+  
 
-  //console.log(`grid of size ${columns}x${rows} will show ${sources.length} sources of page with index ${pageIndex}`)
+  //console.log(`grid of size ${columns}x${rows} will show ${timeseries.length} sources of page with index ${pageIndex}`)
   return (
 
-
+    
     <div
       style={{
         display: 'grid',
@@ -36,9 +78,9 @@ export const SourceGrid: React.FC<GridProps> = ({ run, sources, selectedTags, co
         overflow: 'hidden', // Prevent overflow issues
       }}
     >
-      {sources && Array.from({ length: sources.length }, (_, index) => {
-        const source = sources[index];
-
+      {groupedSources && Array.from({ length: groupedSources.length }, (_, index) => {
+        const source = groupedSources[index];
+        //console.log("sources in grid", groupedSources);
         // If no source exists at this index, return an empty cell
         if (!source) {
           return <div key={index} style={{ border: '1px solid #ccc' }} />;
@@ -46,22 +88,22 @@ export const SourceGrid: React.FC<GridProps> = ({ run, sources, selectedTags, co
 
 
         return (
-          
 
 
-            <div
-              key={index}
-               style={{
-                border: '1px solid #ccc', 
-                padding: '10px',
-                height: '100%',
-                overflow: 'hidden'
-                }} 
-            >
-              <h4><b>{source.sourceid.toString()}</b></h4>
-              <TimeSeries sourceid={source.sourceid} ts={source.timeseries.filter((ts)=>selectedTags.includes(ts.tag))} />
-            </div>
-          
+
+          <div
+            key={index}
+            style={{
+              border: '1px solid #ccc',
+              padding: '10px',
+              height: '100%',
+              overflow: 'hidden'
+            }}
+          >
+            <h4><b>{source.sourceid.toString()}</b></h4>
+            <TimeSeries sourceid={source.sourceid} ts={source.timeseries} />
+          </div>
+
         );
       })}
 

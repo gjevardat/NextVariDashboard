@@ -10,16 +10,19 @@ import {
   Container, 
   Grid, 
   Box,
-  alpha
+  alpha,
+  IconButton,
+  Snackbar,
 } from '@mui/material';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-
-// Create a theme that mimics shadcn's aesthetic
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 const theme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#020817', // shadcn primary color
+      main: '#020817',
     },
     background: {
       default: '#ffffff',
@@ -27,7 +30,7 @@ const theme = createTheme({
     },
     text: {
       primary: '#020817',
-      secondary: '#64748b', // Muted text color similar to shadcn
+      secondary: '#64748b',
     },
   },
   typography: {
@@ -72,6 +75,22 @@ const theme = createTheme({
           '&:hover': {
             backgroundColor: alpha('#000', 0.01),
           },
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+        },
+      },
+    },
+    MuiCardContent: {
+      styleOverrides: {
+        root: {
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          padding: '24px !important',
+          '&:last-child': {
+            paddingBottom: '24px !important',
+          },
         },
       },
     },
@@ -91,34 +110,118 @@ const theme = createTheme({
         },
       },
     },
+    MuiSnackbar: {
+      styleOverrides: {
+        root: {
+          bottom: '24px',
+        },
+      },
+    },
   },
 });
 
-type CardProps = {
-  href: string,
-  title:string,
-  description:string
-}
-const DashboardCard = ({ href, title, description }:CardProps) => {
+const CodeBox = () => {
+  const [copySuccess, setCopySuccess] = React.useState(false);
+  const sshCommand = "ssh -L 50080:localhost:50080 -L 58888:localhost:58888 username@remote-server";
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(sshCommand);
+      setCopySuccess(true);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  };
+
+  const customStyle = {
+    backgroundColor: '#1a1a1a',
+    margin: 0,
+    borderRadius: '0.375rem',
+    fontSize: '0.875rem',
+  };
+
+  return (
+    <Box sx={{ mt: 6 }}>
+      <Typography variant="h6" gutterBottom>
+        SSH Tunnel Command
+      </Typography>
+      <Typography variant="body2" sx={{ mb: 2 }}>
+        To access the dashboards, first establish an SSH tunnel using this command:
+      </Typography>
+      <Box
+        sx={{
+          position: 'relative',
+          backgroundColor: '#1a1a1a',
+          borderRadius: '0.375rem',
+          display: 'flex',
+          alignItems: 'stretch', // Changed to stretch to match heights
+        }}
+      >
+        <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+          <SyntaxHighlighter
+            language="bash"
+            style={atomDark}
+            customStyle={customStyle}
+          >
+            {sshCommand}
+          </SyntaxHighlighter>
+        </Box>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            px: 1,
+          }}
+        >
+          <IconButton 
+            onClick={handleCopy}
+            sx={{ 
+              color: '#ffffff',
+              '&:hover': {
+                backgroundColor: alpha('#ffffff', 0.1),
+              },
+            }}
+            aria-label="copy ssh command"
+          >
+            <ContentCopyIcon />
+          </IconButton>
+        </Box>
+      </Box>
+      <Snackbar
+        open={copySuccess}
+        autoHideDuration={2000}
+        onClose={() => setCopySuccess(false)}
+        message="Command copied to clipboard"
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      />
+    </Box>
+  );
+};
+
+const DashboardCard = ({ href, title, description }) => {
   return (
     <Card>
-      <CardContent sx={{ p: 6 }}>
-        <Typography variant="h6" gutterBottom component="h2">
-          {title}
-        </Typography>
-        <Typography variant="body2" sx={{ mb: 3 }}>
-          {description}
-        </Typography>
-        <Button
-          href={href}
-          target="_blank"
-          rel="noopener noreferrer"
-          endIcon={<ArrowForwardIcon />}
-          variant="contained"
-          disableElevation
-        >
-          Open Dashboard
-        </Button>
+      <CardContent>
+        <Box sx={{ flexGrow: 1 }}>
+          <Typography variant="h6" gutterBottom component="h2">
+            {title}
+          </Typography>
+          <Typography variant="body2" sx={{ mb: 3 }}>
+            {description}
+          </Typography>
+        </Box>
+        <Box>
+          <Button
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            endIcon={<ArrowForwardIcon />}
+            variant="contained"
+            disableElevation
+          >
+            Open Dashboard
+          </Button>
+        </Box>
       </CardContent>
     </Card>
   );
@@ -129,12 +232,12 @@ const EntryPointPage = () => {
     {
       href: "http://localhost:50080/VariDashboardDR3_ops_cs36_xz/",
       title: "VariDashboard DR3",
-      description: "All runs on the old database: big run, DR3 exported runs etc."
+      description: "All runs on the old database launched with VariConfiguration 22.5.1 or before: big run, DR3 exported runs."
     },
     {
-      href: "http://localhost:3000/photometry",
+      href: "http://localhost:58888/VD21/",
       title: "VariDashboard DR4",
-      description: "All DR4 runs on the new database."
+      description: "All DR4 runs on the new database launched with VariConfiguration 22.5.1 or before."
     }
   ];
 
@@ -166,6 +269,8 @@ const EntryPointPage = () => {
               </Grid>
             ))}
           </Grid>
+
+          <CodeBox />
         </Container>
       </Box>
     </ThemeProvider>

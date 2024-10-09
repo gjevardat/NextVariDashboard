@@ -11,7 +11,7 @@ export default async function handler(req:NextApiRequest , res:NextApiResponse) 
       const runid = req.query.runid;
       const sourceids = req.query.sourceids as string[]
       const sourceids_bigint:bigint[] =  Array.isArray(sourceids)?sourceids.map(s => BigInt(s)):Array(sourceids);
-      const tags = req.query.tags as string[];
+      const tags:string[]= Array.isArray(req.query.tags)?req.query.tags as string[]:Array(req.query.tags) as string[];
 
       if(sourceids_bigint!==null && tags!==null){
         const data = await getTS(Number(runid),sourceids_bigint,tags);

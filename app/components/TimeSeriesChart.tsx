@@ -85,8 +85,8 @@ export function TimeSeries({ sourceid,ts }: TimeSeriesProps) {
         .filter((id): id is string => id !== undefined)
       let requestedSeries = ts.map((ts) => ts.tag);
 
-      console.log(`req tags ${requestedSeries}`)
-      console.log(`existing tags ${existingSeries}`)
+      /* console.log(`req tags ${requestedSeries}`)
+      console.log(`existing tags ${existingSeries}`) */
       // Series to remove from the chart
       let seriesToRemove = existingSeries.filter(tag => !requestedSeries.includes(tag));
       // Series to add to the chart
