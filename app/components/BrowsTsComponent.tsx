@@ -197,7 +197,7 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
             fetchRunTimeSeriesTag(selectedRun);
             setSources((prevSources) => []) // empty the sources when changing run           
             setPageIndex(0)
-            prefetch(dataSelection, [], 0, 1);
+            prefetch(dataSelection, [], 0, 4);
             if (dataSelection.selectedSources.length > 0) {
                 const idsToFetch = dataSelection.selectedSources.filter((id) => sources.length>0?id:!sources.map(s => (s.sourceid)).includes(id));
                 console.log("ids to fetch", idsToFetch)
