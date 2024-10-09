@@ -27,9 +27,7 @@ export interface page {
 
 export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }: BrowseTsProps) {
 
-
-
-
+    const [loading, setLoading] = useState<boolean>(false)
     const [availableTags, setAvailableTags] = useState<timeseriestag[]>([]);
     const [selectedTags, setSelectedTags] = useState<string[]>(tags);
 
@@ -77,6 +75,7 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
 
     async function fetchTimeSeriesBatch(run: run, tags: string[], pageIndexes: number[], pageSize: number) {
         try {
+            
             // Create an array of promises for each pageIndex
             const fetchPromises = pageIndexes.map((reqPageIndex) => {
                 return fetch(`/api/getTSPage?runid=${run.runid}&pageIndex=${reqPageIndex}&pageSize=${pageSize}&tags=${tags.join('&tags=')}`)
@@ -110,11 +109,16 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
 
 
         } catch (error) {
+            
             console.error('Error fetching time series data:', error);
+        }
+        finally{
+            setLoading(false)
         }
     }
 
     async function fetchTimeSeriesList(run: run, tags: string[], sourceids: bigint[]) {
+        setLoading(true)
         if (sourceids && sourceids.length > 0) {
 
             const sourceidsString = sourceids.map((id) => id.toString()).join('&sourceids=');
@@ -138,6 +142,7 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
             });
 
         }
+        setLoading(false)
     }
 
 
@@ -170,6 +175,7 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
 
     useEffect(() => {
         //trigger some prefetch when we change page except for first page
+        
         if (pageIndex != 0)
             dataSelection.selectedRun && prefetch(dataSelection, sources, pageIndex, 10);
     }, [pageIndex]);
@@ -187,6 +193,7 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
         // Prevent hook on initial component mounting
         const selectedRun = dataSelection && dataSelection.selectedRun
         if (selectedRun) {
+           
             fetchRunTimeSeriesTag(selectedRun);
             setSources((prevSources) => []) // empty the sources when changing run           
             setPageIndex(0)
@@ -237,7 +244,7 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
 
             // Call the batch fetching function with accumulated page indices
             if (pagesToFetch.length > 0) {
-                console.log(`Will prefetch ${pagesToFetch}`)
+                //console.log(`Will prefetch ${pagesToFetch}`)
                 fetchTimeSeriesBatch(dataselection.selectedRun, selectedTags, pagesToFetch, pageSize);
             }
         }
@@ -261,14 +268,15 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
             <div className="grid-content">
                 <SourceGrid
                     run={dataSelection.selectedRun}
-                    sources={sources && sources.length > 0 ?
+                    sources={
                         sources
                             .filter((source) => { return dataSelection.selectedSources.length > 0 ? dataSelection.selectedSources.includes(BigInt(source.sourceid)) : true })
-                            .slice(pageIndex * gridSize.x * gridSize.y, (pageIndex + 1) * gridSize.x * gridSize.y) : null}
+                            .slice(pageIndex * gridSize.x * gridSize.y, (pageIndex + 1) * gridSize.x * gridSize.y) }
                     columns={gridSize.x}
                     rows={gridSize.y}
                     pageIndex={pageIndex}
                     setPageIndex={setPageIndex}
+                    isLoading={loading}
                 />
             </div>
             <div className="grid-footer">

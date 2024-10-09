@@ -11,21 +11,15 @@ interface GridProps {
   rows: number,
   pageIndex: number,
   setPageIndex: (pageIndex: number) => void,
+  isLoading:boolean
 
 }
 
-export const SourceGrid: React.FC<GridProps> = ({ run, sources, columns, rows, pageIndex, setPageIndex }) => {
+export const SourceGrid: React.FC<GridProps> = ({ run, sources, columns, rows, pageIndex, setPageIndex,isLoading }) => {
 
-
-
-
-
-
-  if (run && !sources) {
+  if (run && (sources==null || sources.length==0 || isLoading )   ) {
     return (<div><LinearProgress /></div>)
   }
-
-
 
   //console.log(`grid of size ${columns}x${rows} will show ${sources.length} sources of page with index ${pageIndex}`)
   return (
