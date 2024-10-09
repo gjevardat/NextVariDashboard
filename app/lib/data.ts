@@ -22,13 +22,13 @@ export async function getTS_Page(runid: number, tags: string[], pageIndex: numbe
   try {
     const data = await pool.query(
       `with sources as (
-select sourceid from sourceresult where runid = $1 and catalogid=getmaincatalog() order by 1 offset $3 limit $4
+select sourceid,catalogid from sourceresult where runid = $1 and catalogid=getmaincatalog() order by 1 offset $3 limit $4
 )
  SELECT
 
                 f.sourceid, tag, f.obstimes, f.val, f.valerr, f.transitid
                 FROM sources
-                JOIN ts g USING(sourceid)
+                JOIN ts g USING(catalogid,sourceid)
                 JOIN ts bp USING(catalogid, sourceid)
                 JOIN ts rp USING(catalogid, sourceid)
                 JOIN ts ccd USING(catalogid, sourceid)

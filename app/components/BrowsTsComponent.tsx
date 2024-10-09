@@ -21,7 +21,7 @@ interface BrowseTsProps {
 
 export interface page {
     pageIndex: number,
-    sources: source[]
+    dirty:boolean
 }
 
 
@@ -76,6 +76,7 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
     async function fetchTimeSeriesBatch(run: run, tags: string[], pageIndexes: number[], pageSize: number) {
         try {
             
+            setLoading(true)
             // Create an array of promises for each pageIndex
             const fetchPromises = pageIndexes.map((reqPageIndex) => {
                 return fetch(`/api/getTSPage?runid=${run.runid}&pageIndex=${reqPageIndex}&pageSize=${pageSize}&tags=${tags.join('&tags=')}`)
@@ -96,13 +97,34 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
 
             setSources((prevSources) => {
                 const flattenedSources = groupedPages.flatMap((p) => p.sources);
-                const newSources = [...prevSources, ...flattenedSources];
-                const sortedUniqueSources = newSources
-                    .sort((a: source, b: source) => (BigInt(a.sourceid) < BigInt(b.sourceid) ? -1 : 1))
-                    .filter((source, index, arr) => {
-
-                        return index === 0 || source.sourceid !== arr[index - 1].sourceid;
+               /*  console.log("Preve sources",prevSources)
+                */ console.log("flatened", flattenedSources)
+                
+                const mergeSources = (prevSources:source[], flattenedSources:source[]) => {
+                    // Create a map to easily overwrite based on id
+                    const sourceMap = new Map();
+                  
+                    // First, add all prevSources to the map (using id as the key)
+                    prevSources.forEach(source => {
+                      sourceMap.set(source.sourceid, source);
                     });
+                  
+                    // Then, overwrite or add from flattenedSources
+                    flattenedSources.forEach(source => {
+                      sourceMap.set(source.sourceid, source);  // This will replace if the id exists
+                    });
+                  
+                    // Convert the map back to an array
+                    return Array.from(sourceMap.values());
+                  };
+                
+                const mergedSouces = mergeSources(prevSources,flattenedSources);
+                //console.log("new sources",mergedSouces)
+                const sortedUniqueSources = mergedSouces
+                    .sort((a: source, b: source) => (BigInt(a.sourceid) < BigInt(b.sourceid) ? -1 : 1))
+                
+
+                  //  console.log("unique sources",sortedUniqueSources)
 
                 return sortedUniqueSources;
             });
@@ -176,16 +198,24 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
     useEffect(() => {
         //trigger some prefetch when we change page except for first page
         
-        if (pageIndex != 0)
-            dataSelection.selectedRun && prefetch(dataSelection, sources, pageIndex, 10);
+        const selectedRun = dataSelection && dataSelection.selectedRun
+        if (selectedRun) {
+            dataSelection.selectedRun && fetchTimeSeriesBatch(selectedRun, selectedTags, [pageIndex], gridSize.x * gridSize.y);
+        }
     }, [pageIndex]);
 
     useEffect(() => {
-        const selectedRun = dataSelection && dataSelection.selectedRun
-        if (selectedRun) {
-            setSources((prevSources) => []) // empty the sources when changing tags to force refetching           
+      
+        
+
+          const selectedRun = dataSelection && dataSelection.selectedRun
+          if (selectedRun) {
+             // setSources((prevSources) => []) // empty the sources when changing tags to force refetching           
+            // console.log(`Fetching new tags ${selectedTags}`)
             fetchTimeSeriesBatch(selectedRun, selectedTags, [pageIndex], gridSize.x * gridSize.y);
-        }
+              
+          }
+      
     }, [selectedTags]);
 
 
@@ -195,12 +225,12 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
         if (selectedRun) {
            
             fetchRunTimeSeriesTag(selectedRun);
-            setSources((prevSources) => []) // empty the sources when changing run           
+            
             setPageIndex(0)
-            prefetch(dataSelection, [], 0, 4);
+            fetchTimeSeriesBatch(selectedRun, selectedTags, [pageIndex], gridSize.x * gridSize.y);
             if (dataSelection.selectedSources.length > 0) {
                 const idsToFetch = dataSelection.selectedSources.filter((id) => sources.length>0?id:!sources.map(s => (s.sourceid)).includes(id));
-                console.log("ids to fetch", idsToFetch)
+               // console.log("ids to fetch", idsToFetch)
                 fetchTimeSeriesList(selectedRun, selectedTags, idsToFetch)
             }
             
@@ -214,8 +244,9 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
         if (selectedRun) {
             console.log(`data selection change for run  ${selectedRun?.runid} and sources ${dataSelection.selectedSources}`)
             if (dataSelection.selectedSources.length > 0) {
-                const idsToFetch = dataSelection.selectedSources.filter((id) => !sources.map(s => (s.sourceid)).includes(id));
-                console.log("ids to fetch", idsToFetch)
+                const idsToFetch = dataSelection.selectedSources//.filter((id) => !sources.map(s => (s.sourceid)).includes(id));
+                //const idsToFetch = dataSelection.selectedSources.filter((id) => !sources.map(s => (s.sourceid)).includes(id));
+                //console.log("ids to fetch", idsToFetch)
                 fetchTimeSeriesList(selectedRun, selectedTags, idsToFetch)
             }
             setPageIndex(0)
@@ -224,19 +255,19 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
 
     useEffect(() => {
         dataSelection.selectedRun && setPageIndex(0)
-        dataSelection.selectedRun && prefetch(dataSelection, sources, pageIndex, 2);
+        dataSelection.selectedRun && fetchTimeSeriesBatch(dataSelection.selectedRun , selectedTags, [pageIndex], gridSize.x * gridSize.y);
     }, [gridSize]);
 
     async function prefetch(dataselection: dataselection, currentSources: source[], page: number, prefetchPages: number = defaultPrefetchPages) {
         if (dataselection.selectedRun && page != null) {
-            console.log("starting fetch data")
+           // console.log("starting fetch data")
             let pagesToFetch: number[] = [];
             let pageSize = gridSize.x * gridSize.y;
             let totalPages = Math.ceil(dataselection.selectedRun.size / pageSize); // Assuming total number of pages can be calculated
 
 
             // Prefetch next n=prefetchPages pages 
-            for (let i = page; i < Math.min(page + prefetchPages, totalPages); i++) {
+            for (let i = Math.max(0,page-prefetchPages); i < Math.min(page + prefetchPages, totalPages); i++) {
                 if (!currentSources[i * pageSize] && !currentSources[(i * pageSize) + pageSize - 1]) {
                     pagesToFetch.push(i);
                 }
@@ -272,6 +303,7 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
                         sources
                             .filter((source) => { return dataSelection.selectedSources.length > 0 ? dataSelection.selectedSources.includes(BigInt(source.sourceid)) : true })
                             .slice(pageIndex * gridSize.x * gridSize.y, (pageIndex + 1) * gridSize.x * gridSize.y) }
+                    selectedTags={selectedTags}
                     columns={gridSize.x}
                     rows={gridSize.y}
                     pageIndex={pageIndex}

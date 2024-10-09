@@ -12,10 +12,10 @@ interface GridProps {
   pageIndex: number,
   setPageIndex: (pageIndex: number) => void,
   isLoading:boolean
-
+  selectedTags:string[]
 }
 
-export const SourceGrid: React.FC<GridProps> = ({ run, sources, columns, rows, pageIndex, setPageIndex,isLoading }) => {
+export const SourceGrid: React.FC<GridProps> = ({ run, sources, selectedTags, columns, rows, pageIndex, setPageIndex,isLoading }) => {
 
   if (run && (sources==null || sources.length==0 || isLoading )   ) {
     return (<div><LinearProgress /></div>)
@@ -59,7 +59,7 @@ export const SourceGrid: React.FC<GridProps> = ({ run, sources, columns, rows, p
                 }} 
             >
               <h4><b>{source.sourceid.toString()}</b></h4>
-              <TimeSeries source={sources ? source : null} />
+              <TimeSeries sourceid={source.sourceid} ts={source.timeseries.filter((ts)=>selectedTags.includes(ts.tag))} />
             </div>
           
         );

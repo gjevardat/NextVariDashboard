@@ -20,12 +20,12 @@ if (typeof Highcharts === 'object') {
 }
 
 interface TimeSeriesProps {
-  source: source | null;
+  sourceid: bigint;
+  ts: ts[];
 }
 
-export function TimeSeries({ source }: TimeSeriesProps) {
+export function TimeSeries({ sourceid,ts }: TimeSeriesProps) {
   const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
-
   const [chart, setChart] = useState<Highcharts.Chart>()
 
   const [chartOptions] = useState<Highcharts.Options>({
@@ -53,7 +53,7 @@ export function TimeSeries({ source }: TimeSeriesProps) {
       enabled: true,
       chartOptions: {
         title: {
-          text: source?.sourceid.toString()
+          text: sourceid.toString()
         }
       },
       buttons: {
@@ -74,17 +74,19 @@ export function TimeSeries({ source }: TimeSeriesProps) {
 
   useEffect(() => {
 
-    if (chart && source && source.timeseries && source.timeseries.length > 0) {
+    if (chart && sourceid && ts && ts.length > 0) {
 
+      console.log(`ts as params ${ts.map((t)=>t.tag)}`)
 
 
       let existingSeries:string[] = chart.series
         .filter((s) => s.options && s.options.id && !s.options.id.endsWith('_err'))
         .map((s) => s.options.id)
         .filter((id): id is string => id !== undefined)
-      let requestedSeries = source.timeseries.map((ts) => ts.tag);
+      let requestedSeries = ts.map((ts) => ts.tag);
 
- 
+      console.log(`req tags ${requestedSeries}`)
+      console.log(`existing tags ${existingSeries}`)
       // Series to remove from the chart
       let seriesToRemove = existingSeries.filter(tag => !requestedSeries.includes(tag));
       // Series to add to the chart
@@ -99,7 +101,7 @@ export function TimeSeries({ source }: TimeSeriesProps) {
         errorSeriesChart?.remove();
       })
 
-      source.timeseries.forEach((ts) => {
+      ts.forEach((ts) => {
         const valueSeries: [number, number][] = ts.obstimes.map((value, index) => [value, ts.val[index]]);
         const errorSeries: [number, number, number][] = ts.obstimes.map((value, index) => [value, ts.val[index] - ts.valerr[index], ts.val[index] + ts.valerr[index]]);
 
@@ -157,7 +159,7 @@ export function TimeSeries({ source }: TimeSeriesProps) {
       });
       chart.redraw();
     }
-  }, [chart,source]);
+  }, [chart,ts]);
 
 
   return (

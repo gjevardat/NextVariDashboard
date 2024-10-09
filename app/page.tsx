@@ -129,7 +129,7 @@ const EntryPointPage = () => {
     {
       href: "http://localhost:50080/VariDashboardDR3_ops_cs36_xz/",
       title: "VariDashboard DR3",
-      description: "All runs on the old database launched with VariConfiguration 22.5.1 or before: big run, DR3 exported runs."
+      description: "All runs on the old database: big run, DR3 exported runs etc."
     },
     {
       href: "http://localhost:3000/photometry",
