@@ -1,101 +1,175 @@
-import Image from "next/image";
+'use client'
+import React from 'react';
+import { 
+  ThemeProvider, 
+  createTheme, 
+  Card, 
+  CardContent, 
+  Button, 
+  Typography, 
+  Container, 
+  Grid, 
+  Box,
+  alpha
+} from '@mui/material';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+// Create a theme that mimics shadcn's aesthetic
+const theme = createTheme({
+  palette: {
+    mode: 'light',
+    primary: {
+      main: '#020817', // shadcn primary color
+    },
+    background: {
+      default: '#ffffff',
+      paper: '#ffffff',
+    },
+    text: {
+      primary: '#020817',
+      secondary: '#64748b', // Muted text color similar to shadcn
+    },
+  },
+  typography: {
+    fontFamily: [
+      'Inter',
+      '-apple-system',
+      'BlinkMacSystemFont',
+      'Segoe UI',
+      'Roboto',
+      'sans-serif',
+    ].join(','),
+    h1: {
+      fontSize: '2.25rem',
+      fontWeight: 700,
+      lineHeight: 1.2,
+      letterSpacing: '-0.05em',
+    },
+    h6: {
+      fontSize: '1.25rem',
+      fontWeight: 600,
+      lineHeight: 1.2,
+    },
+    body1: {
+      fontSize: '1rem',
+      lineHeight: 1.5,
+    },
+    body2: {
+      fontSize: '0.875rem',
+      lineHeight: 1.5,
+      color: '#64748b',
+    },
+  },
+  components: {
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: '0.75rem',
+          border: '1px solid',
+          borderColor: '#e2e8f0',
+          boxShadow: 'none',
+          transition: 'background-color 0.2s ease, border-color 0.2s ease',
+          '&:hover': {
+            backgroundColor: alpha('#000', 0.01),
+          },
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+          borderRadius: '0.375rem',
+          fontWeight: 500,
+          fontSize: '0.875rem',
+          padding: '0.5rem 1rem',
+          backgroundColor: '#020817',
+          color: '#ffffff',
+          '&:hover': {
+            backgroundColor: '#1a1a1a',
+          },
+        },
+      },
+    },
+  },
+});
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+type CardProps = {
+  href: string,
+  title:string,
+  description:string
 }
+const DashboardCard = ({ href, title, description }:CardProps) => {
+  return (
+    <Card>
+      <CardContent sx={{ p: 6 }}>
+        <Typography variant="h6" gutterBottom component="h2">
+          {title}
+        </Typography>
+        <Typography variant="body2" sx={{ mb: 3 }}>
+          {description}
+        </Typography>
+        <Button
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          endIcon={<ArrowForwardIcon />}
+          variant="contained"
+          disableElevation
+        >
+          Open Dashboard
+        </Button>
+      </CardContent>
+    </Card>
+  );
+};
+
+const EntryPointPage = () => {
+  const dashboards = [
+    {
+      href: "http://localhost:50080/VariDashboardDR3_ops_cs36_xz/",
+      title: "VariDashboard DR3",
+      description: "All runs on the old database launched with VariConfiguration 22.5.1 or before: big run, DR3 exported runs."
+    },
+    {
+      href: "http://localhost:3000/photometry",
+      title: "VariDashboard DR4",
+      description: "All DR4 runs on the new database."
+    }
+  ];
+
+  return (
+    <ThemeProvider theme={theme}>
+      <Box
+        sx={{
+          minHeight: '100vh',
+          bgcolor: 'background.default',
+          display: 'flex',
+          alignItems: 'center',
+          py: 8,
+        }}
+      >
+        <Container maxWidth="lg">
+          <Box textAlign="center" mb={6}>
+            <Typography variant="h1" component="h1" gutterBottom>
+              Dashboard Selection
+            </Typography>
+            <Typography variant="body2">
+              Choose a dashboard to view your data
+            </Typography>
+          </Box>
+          
+          <Grid container spacing={4}>
+            {dashboards.map((dashboard, index) => (
+              <Grid item xs={12} md={6} key={index}>
+                <DashboardCard {...dashboard} />
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </Box>
+    </ThemeProvider>
+  );
+};
+
+export default EntryPointPage;

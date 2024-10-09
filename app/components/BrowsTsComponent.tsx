@@ -177,7 +177,7 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
     useEffect(() => {
         const selectedRun = dataSelection && dataSelection.selectedRun
         if (selectedRun) {
-            setSources((prevSources) => []) // empty the sources when changing run           
+            setSources((prevSources) => []) // empty the sources when changing tags to force refetching           
             fetchTimeSeriesBatch(selectedRun, selectedTags, [pageIndex], gridSize.x * gridSize.y);
         }
     }, [selectedTags]);
@@ -189,8 +189,14 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
         if (selectedRun) {
             fetchRunTimeSeriesTag(selectedRun);
             setSources((prevSources) => []) // empty the sources when changing run           
-            prefetch(dataSelection, [], 0, 4);
             setPageIndex(0)
+            prefetch(dataSelection, [], 0, 1);
+            if (dataSelection.selectedSources.length > 0) {
+                const idsToFetch = dataSelection.selectedSources.filter((id) => sources.length>0?id:!sources.map(s => (s.sourceid)).includes(id));
+                console.log("ids to fetch", idsToFetch)
+                fetchTimeSeriesList(selectedRun, selectedTags, idsToFetch)
+            }
+            
         }
     }, [dataSelection.selectedRun]);
 

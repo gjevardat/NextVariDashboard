@@ -67,7 +67,7 @@ const SourceSelectionComponent = ({
                 
                 <Box sx={{ display: 'flex', gap: 1 }}>
                 
-                    {dataSelection.selectedRun && (
+                   
 
 
                         <AutoCompleteRuns
@@ -79,7 +79,7 @@ const SourceSelectionComponent = ({
                             }}
                         />
 
-                    )}
+                    
                     <Badge badgeContent={sourceIdsCount} max={Infinity} color="primary" anchorOrigin={{
                         vertical: 'top',
                         horizontal: 'right',

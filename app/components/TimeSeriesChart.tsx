@@ -78,9 +78,10 @@ export function TimeSeries({ source }: TimeSeriesProps) {
 
 
 
-      let existingSeries = chart.series
+      let existingSeries:string[] = chart.series
         .filter((s) => s.options && s.options.id && !s.options.id.endsWith('_err'))
         .map((s) => s.options.id)
+        .filter((id): id is string => id !== undefined)
       let requestedSeries = source.timeseries.map((ts) => ts.tag);
 
  

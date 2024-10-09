@@ -125,7 +125,7 @@ export function SourceResultId({ run , onSourceSelect}: {  run: run|null; onSour
                 setRowSelectionModel(newRowSelectionModel);
                 console.log("selected row : ",newRowSelectionModel[0])
                 if(newRowSelectionModel[0]!=undefined){
-                    onSourceSelect({sourceid:BigInt(newRowSelectionModel[0])});
+                    onSourceSelect({sourceid:BigInt(newRowSelectionModel[0]),timeseries:[]});
                 }
             }}
             
