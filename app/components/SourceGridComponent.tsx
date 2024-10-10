@@ -5,6 +5,7 @@ import { TimeSeries } from "./TimeSeriesChart";
 import {  LinearProgress } from "@mui/material";
 import { fetchTimeSeriesList, getTimeSeries, getTimeSeriesPreload, TimeSeriesFetch } from "./TimeSeriesDataFetching";
 import { dataselection } from "./SourceSelectionComponent";
+import { useSWRConfig } from "swr";
 
 
 interface GridProps {
@@ -41,18 +42,19 @@ function groupBySourceId(array: ts[]): source[] {
 export const SourceGrid: React.FC<GridProps> = ({ run, selectedTags, columns, rows, pageIndex ,dataselection}) => {
 
   const pageSize = columns * rows;
-  const prefetchSize = 10;
-
+  const prefetchSize = 2;
+  const { cache, mutate, ...extraConfig } = useSWRConfig()
   const { timeseries, error, isLoading }: TimeSeriesFetch = getTimeSeries({ runid: run?.runid, tags: selectedTags, pageIndex: pageIndex, pageSize: pageSize });
 
   console.log(`selected sources ${dataselection.selectedSources}`)
   const filtered:TimeSeriesFetch = fetchTimeSeriesList({ runid: run?.runid, tags: selectedTags, sourceids:dataselection.selectedSources });
 
-  
-    for(let i = pageIndex; i<pageIndex+prefetchSize; i++){
+  Array.from(cache.keys()).forEach(e=> console.log("key:", cache.get(e)));
+
+   /*  for(let i = pageIndex; i<pageIndex+prefetchSize; i++){
       getTimeSeriesPreload({ runid: run?.runid, tags: selectedTags, pageIndex: pageIndex+1, pageSize: pageSize });
     }
-  
+   */
  
 
 

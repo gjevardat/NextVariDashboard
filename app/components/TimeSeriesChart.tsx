@@ -29,9 +29,14 @@ export function TimeSeries({ sourceid,ts }: TimeSeriesProps) {
   const [chart, setChart] = useState<Highcharts.Chart>()
 
   const [chartOptions] = useState<Highcharts.Options>({
+    
+    credits: {
+      enabled: false
+  },
     accessibility: { enabled: false },
     legend: { enabled: false },
     chart: {
+      
       type: 'scatter',
       zooming: { type: 'xy' },
       animation: false,

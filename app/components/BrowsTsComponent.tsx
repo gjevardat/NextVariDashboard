@@ -110,12 +110,12 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
                 />}
             </div>
             <div className="grid-footer">
-                <Pagination
+                {selectedRun && <Pagination
                     currentPageIndex={pageIndex}
                     totalItems={dataSelection.selectedRun ? dataSelection.selectedSources.length > 0 ? dataSelection.selectedSources.length : dataSelection.selectedRun.size : 0}
                     itemsPerPage={gridSize.x * gridSize.y}
                     onPageChange={setPageIndex}
-                />
+                />}
             </div>
 
         </div>
