@@ -38,16 +38,18 @@ export function TimeSeries({ sourceid,ts }: TimeSeriesProps) {
     chart: {
       
       type: 'scatter',
-      zooming: { type: 'xy' },
+      zooming: { type: 'x' },
       animation: false,
     },
     xAxis: {
       type: 'linear',
       title: { text: 'Time (BJD in TCB-2455197.5)' },
+      startOnTick: false
     },
     yAxis: {
       reversed: true,
       title: { text: 'Magnitude' },
+      startOnTick: false
     },
     plotOptions: {
       series: { animation: false },
@@ -81,7 +83,7 @@ export function TimeSeries({ sourceid,ts }: TimeSeriesProps) {
 
     if (chart && sourceid && ts && ts.length > 0) {
 
-      console.log(`ts as params ${ts.map((t)=>t.tag)}`)
+      //console.log(`ts as params ${ts.map((t)=>t.tag)}`)
 
 
       let existingSeries:string[] = chart.series
