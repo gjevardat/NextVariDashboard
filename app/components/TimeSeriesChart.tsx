@@ -38,18 +38,20 @@ export function TimeSeries({ sourceid,ts }: TimeSeriesProps) {
     chart: {
       
       type: 'scatter',
-      zooming: { type: 'x' },
+      zooming: { type: 'xy' },
       animation: false,
     },
     xAxis: {
       type: 'linear',
       title: { text: 'Time (BJD in TCB-2455197.5)' },
-      startOnTick: false
+      startOnTick: false,
+      endOnTick: false
     },
     yAxis: {
       reversed: true,
       title: { text: 'Magnitude' },
-      startOnTick: false
+      startOnTick: false,
+      endOnTick: false
     },
     plotOptions: {
       series: { animation: false },
