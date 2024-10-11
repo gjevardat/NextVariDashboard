@@ -44,30 +44,27 @@ export const SourceGrid: React.FC<GridProps> = ({ run, selectedTags, columns, ro
   const pageSize = columns * rows;
   const dataPageSize = 100;
   const dataPageIndex = Math.floor((pageIndex*pageSize)/dataPageSize);
-  const { cache, mutate, ...extraConfig } = useSWRConfig()
+  
   const { timeseries, error, isLoading }: TimeSeriesFetch = getTimeSeries({ runid: run?.runid, tags: selectedTags, pageIndex: dataPageIndex, pageSize: dataPageSize });
 
   //console.log(`selected sources ${dataselection.selectedSources}`)
   const filtered:TimeSeriesFetch = fetchTimeSeriesList({ runid: run?.runid, tags: selectedTags, sourceids:dataselection.selectedSources });
 
-  //Array.from(cache.keys()).forEach(e=> console.log("key:", cache.get(e)));
-
+  
+  //prefetch one more datapage
    if(pageIndex>0)
       getTimeSeriesPreload({ runid: run?.runid, tags: selectedTags, pageIndex: dataPageIndex+1, pageSize: dataPageSize });
    
-   
- 
-  
-  
   if (run && (timeseries == null || timeseries.length == 0 || isLoading)) {
     return (<div><LinearProgress /></div>)
   }
   
-  console.log("relIndex:",(pageIndex%(dataPageSize/pageSize))*pageSize)
-  const groupedSources:source[] = groupBySourceId(filtered?.timeseries?.length>0?filtered.timeseries:timeseries).slice(((pageIndex%(dataPageSize/pageSize))*pageSize), ((pageIndex%(dataPageSize/pageSize))*pageSize) + pageSize);
   
-  //const finalts = timeseries.slice()
-
+  const groupedSources:source[] = groupBySourceId(filtered?.timeseries?.length>0?filtered.timeseries:timeseries)
+    // filter the source to fit current grid
+    .slice(((pageIndex%(dataPageSize/pageSize))*pageSize), ((pageIndex%(dataPageSize/pageSize))*pageSize) + pageSize);
+  
+  
   //console.log(`grid of size ${columns}x${rows} will show ${timeseries.length} sources of page with index ${pageIndex}`)
   return (
 
@@ -77,10 +74,10 @@ export const SourceGrid: React.FC<GridProps> = ({ run, selectedTags, columns, ro
         display: 'grid',
         gridTemplateColumns: `repeat(${columns}, 1fr)`, // Fixed columns
         gridTemplateRows: `repeat(${rows}, 1fr)`,       // Fixed rows
-        gap: '2px', // Space between grid items
-        height: '100%', // Ensure grid does not expand indefinitely
+        gap: '2px', 
+        height: '100%', 
         width: '100%',
-        overflow: 'hidden', // Prevent overflow issues
+        overflow: 'hidden', 
       }}
     >
       {groupedSources && Array.from({ length: groupedSources.length }, (_, index) => {
