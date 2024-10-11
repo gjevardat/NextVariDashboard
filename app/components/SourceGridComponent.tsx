@@ -42,29 +42,31 @@ function groupBySourceId(array: ts[]): source[] {
 export const SourceGrid: React.FC<GridProps> = ({ run, selectedTags, columns, rows, pageIndex ,dataselection}) => {
 
   const pageSize = columns * rows;
-  const prefetchSize = 2;
+  const dataPageSize = 100;
+  const dataPageIndex = Math.floor((pageIndex*pageSize)/dataPageSize);
   const { cache, mutate, ...extraConfig } = useSWRConfig()
-  const { timeseries, error, isLoading }: TimeSeriesFetch = getTimeSeries({ runid: run?.runid, tags: selectedTags, pageIndex: pageIndex, pageSize: pageSize });
+  const { timeseries, error, isLoading }: TimeSeriesFetch = getTimeSeries({ runid: run?.runid, tags: selectedTags, pageIndex: dataPageIndex, pageSize: dataPageSize });
 
-  console.log(`selected sources ${dataselection.selectedSources}`)
+  //console.log(`selected sources ${dataselection.selectedSources}`)
   const filtered:TimeSeriesFetch = fetchTimeSeriesList({ runid: run?.runid, tags: selectedTags, sourceids:dataselection.selectedSources });
 
-  Array.from(cache.keys()).forEach(e=> console.log("key:", cache.get(e)));
+  //Array.from(cache.keys()).forEach(e=> console.log("key:", cache.get(e)));
 
-   /*  for(let i = pageIndex; i<pageIndex+prefetchSize; i++){
-      getTimeSeriesPreload({ runid: run?.runid, tags: selectedTags, pageIndex: pageIndex+1, pageSize: pageSize });
-    }
-   */
+   if(pageIndex>0)
+      getTimeSeriesPreload({ runid: run?.runid, tags: selectedTags, pageIndex: dataPageIndex+1, pageSize: dataPageSize });
+   
+   
  
-
-
+  
+  
   if (run && (timeseries == null || timeseries.length == 0 || isLoading)) {
     return (<div><LinearProgress /></div>)
   }
   
+  console.log("relIndex:",(pageIndex%(dataPageSize/pageSize))*pageSize)
+  const groupedSources:source[] = groupBySourceId(filtered?.timeseries?.length>0?filtered.timeseries:timeseries).slice(((pageIndex%(dataPageSize/pageSize))*pageSize), ((pageIndex%(dataPageSize/pageSize))*pageSize) + pageSize);
   
-  const groupedSources:source[] = groupBySourceId(filtered?.timeseries?.length>0?filtered.timeseries:timeseries);
-  
+  //const finalts = timeseries.slice()
 
   //console.log(`grid of size ${columns}x${rows} will show ${timeseries.length} sources of page with index ${pageIndex}`)
   return (
