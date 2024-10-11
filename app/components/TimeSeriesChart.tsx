@@ -44,10 +44,14 @@ export function TimeSeries({ sourceid,ts }: TimeSeriesProps) {
     xAxis: {
       type: 'linear',
       title: { text: 'Time (BJD in TCB-2455197.5)' },
+      startOnTick: false,
+      endOnTick: false
     },
     yAxis: {
       reversed: true,
       title: { text: 'Magnitude' },
+      startOnTick: false,
+      endOnTick: false
     },
     plotOptions: {
       series: { animation: false },

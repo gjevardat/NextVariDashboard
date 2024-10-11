@@ -42,27 +42,33 @@ function groupBySourceId(array: ts[]): source[] {
 export const SourceGrid: React.FC<GridProps> = ({ run, selectedTags, columns, rows, pageIndex ,dataselection}) => {
 
   const pageSize = columns * rows;
-  const dataPageSize = 100;
+  const dataPageSize = pageSize * 4;
   const dataPageIndex = Math.floor((pageIndex*pageSize)/dataPageSize);
   
+  //console.log(`pageSize:${pageSize} dataPageSize:${dataPageSize} pageIndex:${pageIndex} dataPageIndex:${dataPageIndex}`)
   const { timeseries, error, isLoading }: TimeSeriesFetch = getTimeSeries({ runid: run?.runid, tags: selectedTags, pageIndex: dataPageIndex, pageSize: dataPageSize });
-
   //console.log(`selected sources ${dataselection.selectedSources}`)
   const filtered:TimeSeriesFetch = fetchTimeSeriesList({ runid: run?.runid, tags: selectedTags, sourceids:dataselection.selectedSources });
-
+  
   
   //prefetch one more datapage
-  // if(pageIndex>0)
-   //   getTimeSeriesPreload({ runid: run?.runid, tags: selectedTags, pageIndex: dataPageIndex+1, pageSize: dataPageSize });
-   
+  if(pageIndex>0)
+    getTimeSeriesPreload({ runid: run?.runid, tags: selectedTags, pageIndex: dataPageIndex+1, pageSize: dataPageSize });
+  
   if (run && (timeseries == null || timeseries.length == 0 || isLoading)) {
     return (<div><LinearProgress /></div>)
   }
   
   
-  const groupedSources:source[] = groupBySourceId(filtered?.timeseries?.length>0?filtered.timeseries:timeseries)
-    // filter the source to fit current grid
-    .slice(((pageIndex%(dataPageSize/pageSize))*pageSize), ((pageIndex%(dataPageSize/pageSize))*pageSize) + pageSize);
+  const groupedSources:source[] = groupBySourceId(filtered?.timeseries?.length>0?filtered.timeseries:timeseries);
+  //console.log(`grouped sources: dataPageIndex:${dataPageIndex}`)
+  const loggroupedsources = groupedSources.map(t=>t.sourceid.toString())
+  //console.log(loggroupedsources)
+
+  // filter the source to fit current grid
+  //console.log(`slice start: ${(pageIndex%(dataPageSize/pageSize))*pageSize}, slice end: ${((pageIndex%(dataPageSize/pageSize))*pageSize) + pageSize}`)
+  const finalSources = groupedSources.slice(((pageIndex%(dataPageSize/pageSize))*pageSize), ((pageIndex%(dataPageSize/pageSize))*pageSize) + pageSize);
+  //console.log(finalSources)
   
   
   //console.log(`grid of size ${columns}x${rows} will show ${timeseries.length} sources of page with index ${pageIndex}`)
@@ -80,8 +86,8 @@ export const SourceGrid: React.FC<GridProps> = ({ run, selectedTags, columns, ro
         overflow: 'hidden', 
       }}
     >
-      {groupedSources && Array.from({ length: groupedSources.length }, (_, index) => {
-        const source = groupedSources[index];
+      {groupedSources && Array.from({ length: finalSources.length }, (_, index) => {
+        const source = finalSources[index];
         //console.log("sources in grid", groupedSources);
         // If no source exists at this index, return an empty cell
         if (!source) {
