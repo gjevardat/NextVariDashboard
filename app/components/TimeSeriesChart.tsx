@@ -81,7 +81,7 @@ export function TimeSeries({ sourceid,ts }: TimeSeriesProps) {
 
     if (chart && sourceid && ts && ts.length > 0) {
 
-      console.log(`ts as params ${ts.map((t)=>t.tag)}`)
+      //console.log(`ts as params ${ts.map((t)=>t.tag)}`)
 
 
       let existingSeries:string[] = chart.series

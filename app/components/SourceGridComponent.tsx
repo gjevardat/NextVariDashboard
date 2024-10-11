@@ -52,8 +52,8 @@ export const SourceGrid: React.FC<GridProps> = ({ run, selectedTags, columns, ro
 
   
   //prefetch one more datapage
-   if(pageIndex>0)
-      getTimeSeriesPreload({ runid: run?.runid, tags: selectedTags, pageIndex: dataPageIndex+1, pageSize: dataPageSize });
+  // if(pageIndex>0)
+   //   getTimeSeriesPreload({ runid: run?.runid, tags: selectedTags, pageIndex: dataPageIndex+1, pageSize: dataPageSize });
    
   if (run && (timeseries == null || timeseries.length == 0 || isLoading)) {
     return (<div><LinearProgress /></div>)

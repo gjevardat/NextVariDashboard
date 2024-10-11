@@ -1,10 +1,6 @@
 import useSWR, { preload } from 'swr'
 import { ts } from '@/app/types'
  
-
-
-
-
 export type TimeSeriesFetch = {
   timeseries:ts[],
   error:string,
@@ -30,7 +26,7 @@ const fetcher = (...args: [input: RequestInfo | URL, init?: RequestInit]) =>
 export function getTimeSeries({ runid, pageIndex, pageSize, tags }: InputPageProps): TimeSeriesFetch {
 
   const { data, error, isLoading } = useSWR(
-    `/api/getTSPage?runid=${runid}&pageIndex=${pageIndex}&pageSize=${pageSize}&tags=${tags.join('&tags=')}`, 
+    `/api/getTSPage?db=dr4&runid=${runid}&pageIndex=${pageIndex}&pageSize=${pageSize}&tags=${tags.join('&tags=')}`, 
     fetcher,
     {
       revalidateIfStale: false,
@@ -48,7 +44,7 @@ export function getTimeSeries({ runid, pageIndex, pageSize, tags }: InputPagePro
 
 export  function fetchTimeSeriesList({ runid, sourceids, tags }: InputSourcesProps): TimeSeriesFetch {
   const { data, error,isLoading } = useSWR(sourceids.length>0?
-   `/api/getTS?runid=${runid}&tags=${tags.join('&tags=')}&sourceids=${sourceids.join('&sourceids=')}`:null, 
+   `/api/getTS?db=dr4&runid=${runid}&tags=${tags.join('&tags=')}&sourceids=${sourceids.join('&sourceids=')}`:null, 
     fetcher
   );
 
@@ -65,7 +61,7 @@ export function getTimeSeriesPreload({ runid, pageIndex, pageSize, tags }: Input
 
 
   preload(
-    `/api/getTSPage?runid=${runid}&pageIndex=${pageIndex}&pageSize=${pageSize}&tags=${tags.join('&tags=')}`, 
+    `/api/getTSPage?db=dr4&runid=${runid}&pageIndex=${pageIndex}&pageSize=${pageSize}&tags=${tags.join('&tags=')}`, 
     fetcher
   );
 

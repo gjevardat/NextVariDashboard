@@ -122,7 +122,7 @@ const theme = createTheme({
 
 const CodeBox = () => {
   const [copySuccess, setCopySuccess] = React.useState(false);
-  const sshCommand = "ssh -L 50080:localhost:50080 -L 58888:localhost:58888 username@login01.astro.unige.ch";
+  const sshCommand = "ssh -L 50080:localhost:50080 -L 53001:localhost:53001 username@login01.astro.unige.ch";
 
   const handleCopy = async () => {
     try {

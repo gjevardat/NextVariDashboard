@@ -1,4 +1,5 @@
 import { getTS } from '@/app/lib/data';
+import { dr4_pool } from '@/app/lib/db';
 
 import type { NextApiRequest, NextApiResponse } from 'next'
 
@@ -14,7 +15,7 @@ export default async function handler(req:NextApiRequest , res:NextApiResponse) 
       const tags:string[]= Array.isArray(req.query.tags)?req.query.tags as string[]:Array(req.query.tags) as string[];
 
       if(sourceids_bigint!==null && tags!==null){
-        const data = await getTS(Number(runid),sourceids_bigint,tags);
+        const data = await getTS(dr4_pool,Number(runid),sourceids_bigint,tags);
         res.status(200).json(data);
       }
       else{

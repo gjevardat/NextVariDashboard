@@ -1,4 +1,5 @@
 import { getSourceResultsId } from '@/app/lib/data';
+import { dr4_pool } from '@/app/lib/db';
 
 import type { NextApiRequest, NextApiResponse } from 'next'
 
@@ -11,7 +12,7 @@ export default async function handler(req:NextApiRequest , res:NextApiResponse) 
       const {size} = req.query;
       
       console.log(req.query)
-      const data = await getSourceResultsId(Number(runid),Number(offset),Number(size));
+      const data = await getSourceResultsId(dr4_pool,Number(runid),Number(offset),Number(size));
          
       res.status(200).json(data);
     } catch (error) {

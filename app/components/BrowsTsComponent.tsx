@@ -7,6 +7,7 @@ import { SourceGrid } from './SourceGridComponent';
 import Pagination from './PaginationComponent';
 import SourceSelectionComponent, { dataselection } from './SourceSelectionComponent';
 interface BrowseTsProps {
+    db: string;
     run: run | null ,
     sourceid: bigint | null,
     tags: string[],
@@ -14,7 +15,7 @@ interface BrowseTsProps {
 
 }
 
-export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }: BrowseTsProps) {
+export default function BrowseTsComponent({ db, run, sourceid, tags, availableRuns }: BrowseTsProps) {
 
     const [availableTags, setAvailableTags] = useState<timeseriestag[]>([]);
     const [selectedTags, setSelectedTags] = useState<string[]>(tags);
@@ -35,7 +36,7 @@ export default function BrowseTsComponent({ run, sourceid, tags, availableRuns }
                 }
             }
         },
-        [dataSelection, gridSize, pageIndex] // Add state variables as dependencies 
+        [dataSelection, gridSize, pageIndex] // not sure why one's need to recreate handler each key stroke ?
     );
 
     async function fetchRunTimeSeriesTag(run: run) {

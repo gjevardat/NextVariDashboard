@@ -1,4 +1,5 @@
 import { getSourceResultsId, getTimeSeriesResultTypes } from '@/app/lib/data';
+import { dr4_pool } from '@/app/lib/db';
 
 import type { NextApiRequest, NextApiResponse } from 'next'
 
@@ -10,8 +11,9 @@ export default async function handler(req:NextApiRequest , res:NextApiResponse) 
       const {offset} = req.query;
       const {size} = req.query;
       
+      
       console.log(req.query)
-      const data = await getTimeSeriesResultTypes(Number(runid));
+      const data = await getTimeSeriesResultTypes(dr4_pool,Number(runid));
          
       res.status(200).json(data);
     } catch (error) {
