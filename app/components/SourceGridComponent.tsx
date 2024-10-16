@@ -5,7 +5,7 @@ import { TimeSeries } from "./TimeSeriesChart";
 import {  LinearProgress } from "@mui/material";
 import { fetchTimeSeriesList, getTimeSeries, getTimeSeriesPreload, TimeSeriesFetch } from "./TimeSeriesDataFetching";
 import { dataselection } from "./SourceSelectionComponent";
-import { useSWRConfig } from "swr";
+
 
 
 interface GridProps {
